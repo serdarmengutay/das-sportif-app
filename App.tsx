@@ -1,20 +1,31 @@
+import React, { useEffect } from 'react';
+import { NavigationContainer } from '@react-navigation/native';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { RootNavigator } from './src/navigation/RootNavigator';
+import { initDatabase } from './src/services/database';
+import { useClubStore } from './src/store/useClubStore';
+import { useTournamentStore } from './src/store/useTournamentStore';
+import { useClubTournamentStore } from './src/store/useClubTournamentStore';
 
 export default function App() {
+  useEffect(() => {
+    const bootstrap = async () => {
+      await initDatabase();
+      // Store'ları paralel yükle
+      await Promise.all([
+        useClubStore.getState().loadClubs(),
+        useTournamentStore.getState().loadTournaments(),
+        useClubTournamentStore.getState().loadRelations(),
+      ]);
+    };
+
+    bootstrap().catch((err) => console.warn('Başlatma hatası:', err));
+  }, []);
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <NavigationContainer>
+      <StatusBar style="light" />
+      <RootNavigator />
+    </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
