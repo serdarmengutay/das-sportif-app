@@ -11,6 +11,7 @@ export const CREATE_CLUBS_TABLE = `
     lat REAL NOT NULL,
     lng REAL NOT NULL,
     notes TEXT NOT NULL DEFAULT '',
+    phone TEXT NOT NULL DEFAULT '',
     status TEXT NOT NULL DEFAULT 'visited',
     createdAt INTEGER NOT NULL
   );

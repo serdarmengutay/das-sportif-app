@@ -4,6 +4,7 @@ import { useClubStore } from '../store/useClubStore';
 import { useClubTournamentStore } from '../store/useClubTournamentStore';
 import { useTournamentStore } from '../store/useTournamentStore';
 import { TournamentCard } from '../components/TournamentCard';
+import { SCREENS } from '../constants/screenConstants';
 import type { ClubDetailScreenProps } from '../types/navigation';
 import type { Club, ClubStatus, Tournament } from '../types';
 
@@ -43,6 +44,10 @@ export const ClubDetailScreen: React.FC<ClubDetailScreenProps> = ({ route, navig
     ]);
   }, [club?.name, clubId, removeClub, navigation]);
 
+  const handleTournamentPress = (tournament: Tournament) => {
+    navigation.push(SCREENS.TOURNAMENT_DETAIL, { tournamentId: tournament.id });
+  };
+
   if (!club) {
     return (
       <View style={styles.centered}>
@@ -74,7 +79,7 @@ export const ClubDetailScreen: React.FC<ClubDetailScreenProps> = ({ route, navig
       <Text style={styles.sectionTitle}>İlişkili Turnuvalar ({relatedTournaments.length})</Text>
       {relatedTournaments.length > 0 ? (
         relatedTournaments.map((t) => (
-          <TournamentCard key={t.id} tournament={t} onPress={() => {}} />
+          <TournamentCard key={t.id} tournament={t} onPress={() => handleTournamentPress(t)} />
         ))
       ) : (
         <Text style={styles.empty}>Henüz ilişkili turnuva yok.</Text>

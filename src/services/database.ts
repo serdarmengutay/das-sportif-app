@@ -53,8 +53,8 @@ export const insertClub = async (data: ClubInsert): Promise<Club> => {
   const database = await getDatabase();
   const id = uid('club');
   const createdAt = Date.now();
-  const sql = `INSERT INTO clubs (id,name,city,district,lat,lng,notes,status,createdAt)
-     VALUES (?,?,?,?,?,?,?,?,?)`;
+  const sql = `INSERT INTO clubs (id,name,city,district,lat,lng,notes,phone,status,createdAt)
+     VALUES (?,?,?,?,?,?,?,?,?,?)`;
   const params = [
     id,
     data.name,
@@ -63,6 +63,7 @@ export const insertClub = async (data: ClubInsert): Promise<Club> => {
     data.lat,
     data.lng,
     data.notes,
+    data.phone,
     data.status,
     createdAt,
   ];

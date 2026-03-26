@@ -4,8 +4,12 @@ import { useTournamentStore } from '../store/useTournamentStore';
 import { useClubTournamentStore } from '../store/useClubTournamentStore';
 import { useClubStore } from '../store/useClubStore';
 import { ClubCard } from '../components/ClubCard';
+import { SCREENS } from '../constants/screenConstants';
 import type { TournamentDetailScreenProps } from '../types/navigation';
-import type { Club } from '../types';
+import type { Club, Tournament } from '../types';
+
+// Let's first check where useClubTournamentStore is located. 
+// I'll assume it's in ../store/useClubTournamentStore based on ClubDetailScreen.tsx
 
 export const TournamentDetailScreen: React.FC<TournamentDetailScreenProps> = ({ route, navigation }) => {
   const { tournamentId } = route.params;
@@ -55,6 +59,10 @@ export const TournamentDetailScreen: React.FC<TournamentDetailScreenProps> = ({ 
     Alert.alert('Kulüp Bağla', 'Hangi kulübü bağlamak istiyorsunuz?', buttons);
   }, [clubs, relatedClubs, link, tournamentId]);
 
+  const handleClubPress = (club: Club) => {
+    navigation.push(SCREENS.CLUB_DETAIL, { clubId: club.id });
+  };
+
   if (!tournament) {
     return (
       <View style={styles.centered}>
@@ -78,7 +86,7 @@ export const TournamentDetailScreen: React.FC<TournamentDetailScreenProps> = ({ 
       </View>
 
       {relatedClubs.length > 0 ? (
-        relatedClubs.map((c) => <ClubCard key={c.id} club={c} onPress={() => {}} />)
+        relatedClubs.map((c) => <ClubCard key={c.id} club={c} onPress={() => handleClubPress(c)} />)
       ) : (
         <Text style={styles.empty}>Henüz ilişkili kulüp yok.</Text>
       )}

@@ -10,6 +10,7 @@ export type Club = {
   lat: number;
   lng: number;
   notes: string;
+  phone: string;
   status: ClubStatus;
   createdAt: number;
 };

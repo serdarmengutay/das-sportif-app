@@ -10,17 +10,22 @@ import {
 
 type ClubStore = {
   clubs: Club[];
+  selectedClub: Club | null;
   loading: boolean;
   loadClubs: () => Promise<void>;
   addClub: (data: ClubInsert) => Promise<Club>;
   updateClub: (id: string, data: Partial<ClubInsert>) => Promise<void>;
   changeStatus: (id: string, status: ClubStatus) => Promise<void>;
   removeClub: (id: string) => Promise<void>;
+  selectClub: (club: Club | null) => void;
 };
 
 export const useClubStore = create<ClubStore>((set) => ({
   clubs: [],
+  selectedClub: null,
   loading: true,
+
+  selectClub: (club) => set({ selectedClub: club }),
 
   loadClubs: async () => {
     try {

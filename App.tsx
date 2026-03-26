@@ -1,31 +1,36 @@
-import React, { useEffect } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import React, { useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { RootNavigator } from './src/navigation/RootNavigator';
+import { Router } from './src/router/Router';
 import { initDatabase } from './src/services/database';
-import { useClubStore } from './src/store/useClubStore';
-import { useTournamentStore } from './src/store/useTournamentStore';
-import { useClubTournamentStore } from './src/store/useClubTournamentStore';
+import { View, ActivityIndicator } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import SafeView from './src/components/SafeView';
 
 export default function App() {
-  useEffect(() => {
-    const bootstrap = async () => {
-      await initDatabase();
-      // Store'ları paralel yükle
-      await Promise.all([
-        useClubStore.getState().loadClubs(),
-        useTournamentStore.getState().loadTournaments(),
-        useClubTournamentStore.getState().loadRelations(),
-      ]);
-    };
+  const [dbReady, setDbReady] = useState(false);
 
-    bootstrap().catch((err) => console.warn('Başlatma hatası:', err));
+  useEffect(() => {
+    const startup = async () => {
+      try {
+        await initDatabase();
+        setDbReady(true);
+      } catch (err) {
+        console.error('Database init error:', err);
+      }
+    };
+    startup();
   }, []);
 
   return (
-    <NavigationContainer>
+    <SafeAreaProvider>
       <StatusBar style="light" />
-      <RootNavigator />
-    </NavigationContainer>
+      {!dbReady ? (
+        <SafeView style={{ justifyContent: 'center', backgroundColor: '#1a1a2e' }}>
+          <ActivityIndicator size="large" color="#4fc3f7" />
+        </SafeView>
+      ) : (
+        <Router />
+      )}
+    </SafeAreaProvider>
   );
 }

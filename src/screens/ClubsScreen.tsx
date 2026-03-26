@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, View, Text, FlatList, ActivityIndicator } from 'react-native';
 import { useClubs } from '../hooks/useClubs';
 import { ClubCard } from '../components/ClubCard';
+import { SCREENS } from '../constants/screenConstants';
 import type { ClubsScreenProps } from '../types/navigation';
 import type { Club } from '../types';
 
@@ -9,7 +10,7 @@ export const ClubsScreen: React.FC<ClubsScreenProps> = ({ navigation }) => {
   const { clubs, loading } = useClubs();
 
   const handlePress = (club: Club) => {
-    navigation.navigate('ClubDetail', { clubId: club.id });
+    navigation.navigate(SCREENS.CLUB_DETAIL, { clubId: club.id });
   };
 
   if (loading) {
