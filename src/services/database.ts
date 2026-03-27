@@ -34,10 +34,28 @@ export const getDatabase = async (): Promise<SQLite.SQLiteDatabase> => {
 
 export const initDatabase = async (): Promise<void> => {
   const database = await getDatabase();
-  await database.execAsync(CREATE_CLUBS_TABLE);
-  await database.execAsync(CREATE_TOURNAMENTS_TABLE);
-  await database.execAsync(CREATE_CLUB_TOURNAMENT_TABLE);
-  await database.execAsync(CREATE_SYNC_QUEUE_TABLE);
+  
+  // Yabancı anahtar kontrollerini geçici olarak kapatıyoruz (silme sırasında hata almamak için)
+  await database.execAsync('PRAGMA foreign_keys = OFF;');
+  
+  try {
+    // Önce bağımlı tabloları siliyoruz
+    await database.execAsync('DROP TABLE IF EXISTS sync_queue;');
+    await database.execAsync('DROP TABLE IF EXISTS club_tournament;');
+    await database.execAsync('DROP TABLE IF EXISTS clubs;');
+    await database.execAsync('DROP TABLE IF EXISTS tournaments;');
+
+    // Tabloları sırasıyla oluşturuyoruz
+    await database.execAsync(CREATE_CLUBS_TABLE);
+    await database.execAsync(CREATE_TOURNAMENTS_TABLE);
+    await database.execAsync(CREATE_CLUB_TOURNAMENT_TABLE);
+    await database.execAsync(CREATE_SYNC_QUEUE_TABLE);
+    
+    console.log('Veritabanı başarıyla initialize edildi.');
+  } finally {
+    // Kontrolleri tekrar açıyoruz
+    await database.execAsync('PRAGMA foreign_keys = ON;');
+  }
 };
 
 // ─── ID üreteci ───────────────────────────────────────────
@@ -53,18 +71,16 @@ export const insertClub = async (data: ClubInsert): Promise<Club> => {
   const database = await getDatabase();
   const id = uid('club');
   const createdAt = Date.now();
-  const sql = `INSERT INTO clubs (id,name,city,district,lat,lng,notes,phone,status,createdAt)
-     VALUES (?,?,?,?,?,?,?,?,?,?)`;
+  const sql = `INSERT INTO clubs (id,name,city,district,status,notes,coachPhone,createdAt)
+     VALUES (?,?,?,?,?,?,?,?)`;
   const params = [
     id,
-    data.name,
-    data.city,
-    data.district,
-    data.lat,
-    data.lng,
-    data.notes,
-    data.phone,
-    data.status,
+    data.name || '',
+    data.city || '',
+    data.district || '',
+    data.status || 'visited',
+    data.notes || '',
+    data.coachPhone || '',
     createdAt,
   ];
 
@@ -115,6 +131,30 @@ export const deleteClub = async (id: string): Promise<void> => {
   await database.runAsync(sql, [id]);
 };
 
+export const upsertClub = async (club: Club): Promise<void> => {
+  const database = await getDatabase();
+  const sql = `INSERT INTO clubs (id, name, city, district, status, notes, coachPhone, createdAt)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+               ON CONFLICT(id) DO UPDATE SET
+               name=excluded.name,
+               city=excluded.city,
+               district=excluded.district,
+               status=excluded.status,
+               notes=excluded.notes,
+               coachPhone=excluded.coachPhone;`;
+  const params = [
+    club.id,
+    club.name || '',
+    club.city || '',
+    club.district || '',
+    club.status || 'visited',
+    club.notes || '',
+    club.coachPhone || '',
+    club.createdAt || Date.now()
+  ];
+  await database.runAsync(sql, params);
+};
+
 // ═══════════════════════════════════════════════════════════
 //  TOURNAMENTS
 // ═══════════════════════════════════════════════════════════
@@ -123,9 +163,19 @@ export const insertTournament = async (data: TournamentInsert): Promise<Tourname
   const database = await getDatabase();
   const id = uid('trn');
   const createdAt = Date.now();
-  const sql = `INSERT INTO tournaments (id,name,season,startDate,endDate,notes,createdAt)
-     VALUES (?,?,?,?,?,?,?)`;
-  const params = [id, data.name, data.season, data.startDate, data.endDate, data.notes, createdAt];
+  const sql = `INSERT INTO tournaments (id,name,city,startDate,endDate,status,participantCount,locationName,createdAt)
+     VALUES (?,?,?,?,?,?,?,?,?)`;
+  const params = [
+    id,
+    data.name || '',
+    data.city || '',
+    data.startDate || null,
+    data.endDate || null,
+    data.status || 'planned',
+    data.participantCount || 0,
+    data.locationName || '',
+    createdAt,
+  ];
 
   console.log('SQL Execute:', sql, params);
 
@@ -166,6 +216,32 @@ export const deleteTournament = async (id: string): Promise<void> => {
   const sql = 'DELETE FROM tournaments WHERE id=?';
   console.log('SQL Execute:', sql, [id]);
   await database.runAsync(sql, [id]);
+};
+
+export const upsertTournament = async (t: Tournament): Promise<void> => {
+  const database = await getDatabase();
+  const sql = `INSERT INTO tournaments (id, name, city, startDate, endDate, status, participantCount, locationName, createdAt)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+               ON CONFLICT(id) DO UPDATE SET
+               name=excluded.name,
+               city=excluded.city,
+               startDate=excluded.startDate,
+               endDate=excluded.endDate,
+               status=excluded.status,
+               participantCount=excluded.participantCount,
+               locationName=excluded.locationName;`;
+  const params = [
+    t.id,
+    t.name || '',
+    t.city || '',
+    t.startDate || null,
+    t.endDate || null,
+    t.status || 'planned',
+    t.participantCount || 0,
+    t.locationName || '',
+    t.createdAt || Date.now()
+  ];
+  await database.runAsync(sql, params);
 };
 
 // ═══════════════════════════════════════════════════════════

@@ -8,11 +8,9 @@ export const CREATE_CLUBS_TABLE = `
     name TEXT NOT NULL,
     city TEXT NOT NULL DEFAULT '',
     district TEXT NOT NULL DEFAULT '',
-    lat REAL NOT NULL,
-    lng REAL NOT NULL,
-    notes TEXT NOT NULL DEFAULT '',
-    phone TEXT NOT NULL DEFAULT '',
     status TEXT NOT NULL DEFAULT 'visited',
+    notes TEXT NOT NULL DEFAULT '',
+    coachPhone TEXT NOT NULL DEFAULT '',
     createdAt INTEGER NOT NULL
   );
 `;
@@ -21,10 +19,12 @@ export const CREATE_TOURNAMENTS_TABLE = `
   CREATE TABLE IF NOT EXISTS tournaments (
     id TEXT PRIMARY KEY NOT NULL,
     name TEXT NOT NULL,
-    season TEXT NOT NULL DEFAULT '',
+    city TEXT NOT NULL DEFAULT '',
     startDate INTEGER,
     endDate INTEGER,
-    notes TEXT NOT NULL DEFAULT '',
+    status TEXT NOT NULL DEFAULT 'planned',
+    participantCount INTEGER NOT NULL DEFAULT 0,
+    locationName TEXT NOT NULL DEFAULT '',
     createdAt INTEGER NOT NULL
   );
 `;

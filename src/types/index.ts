@@ -7,11 +7,9 @@ export type Club = {
   name: string;
   city: string;
   district: string;
-  lat: number;
-  lng: number;
-  notes: string;
-  phone: string;
   status: ClubStatus;
+  notes: string;
+  coachPhone: string;
   createdAt: number;
 };
 
@@ -19,13 +17,17 @@ export type ClubInsert = Omit<Club, 'id' | 'createdAt'>;
 
 // ─── Tournament ───────────────────────────────────────────
 
+export type TournamentStatus = 'active' | 'planned' | 'completed';
+
 export type Tournament = {
   id: string;
   name: string;
-  season: string;
+  city: string;
   startDate: number | null;
   endDate: number | null;
-  notes: string;
+  status: TournamentStatus;
+  participantCount: number;
+  locationName: string;
   createdAt: number;
 };
 

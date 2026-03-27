@@ -1,57 +1,133 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import type { Club, ClubStatus } from '../types';
 
-const STATUS_LABELS: Record<ClubStatus, string> = {
-  visited: 'Ziyaret Edildi',
-  proposal: 'Teklif',
-  negotiation: 'Görüşme',
-  deal: 'Anlaşma',
-};
-
-const STATUS_COLORS: Record<ClubStatus, string> = {
-  visited: '#66bb6a',
-  proposal: '#ffa726',
-  negotiation: '#42a5f5',
-  deal: '#ab47bc',
-};
-
-type Props = {
+interface ClubCardProps {
   club: Club;
-  onPress: (club: Club) => void;
+  onPress: (id: string) => void;
+}
+
+const getStatusConfig = (status: ClubStatus) => {
+  switch (status) {
+    case 'deal':
+      return { text: 'ONAYLANDI', backgroundColor: '#FDE047', color: '#854D0E' };
+    case 'negotiation':
+      return { text: 'GÖRÜŞÜLÜYOR', backgroundColor: '#1E293B', color: '#F1F5F9' };
+    case 'proposal':
+      return { text: 'TEKLİF', backgroundColor: '#DBEAFE', color: '#1E40AF' };
+    case 'visited':
+    default:
+      return { text: 'ZİYARET EDİLDİ', backgroundColor: '#F1F5F9', color: '#475569' };
+  }
 };
 
-export const ClubCard: React.FC<Props> = ({ club, onPress }) => (
-  <TouchableOpacity style={styles.card} onPress={() => onPress(club)} activeOpacity={0.7}>
-    <View style={styles.row}>
-      <Text style={styles.name}>{club.name}</Text>
-      <View style={[styles.badge, { backgroundColor: STATUS_COLORS[club.status] }]}>
-        <Text style={styles.badgeText}>{STATUS_LABELS[club.status]}</Text>
+export const ClubCard: React.FC<ClubCardProps> = ({ club, onPress }) => {
+  const statusConfig = getStatusConfig(club.status);
+
+  return (
+    <TouchableOpacity
+      activeOpacity={0.7}
+      style={styles.container}
+      onPress={() => onPress(club.id)}
+    >
+      <View style={styles.imagePlaceholder}>
+        <Text style={styles.imageText}>{club.name.substring(0, 2).toUpperCase()}</Text>
       </View>
-    </View>
-    {(club.city || club.district) && (
-      <Text style={styles.sub}>
-        {club.district ? `${club.district}, ` : ''}{club.city}
-      </Text>
-    )}
-  </TouchableOpacity>
-);
+      
+      <View style={styles.content}>
+        <View style={styles.header}>
+          <Text style={styles.title} numberOfLines={1}>{club.name}</Text>
+          <View style={[styles.badge, { backgroundColor: statusConfig.backgroundColor }]}>
+            <Text style={[styles.badgeText, { color: statusConfig.color }]}>
+              {statusConfig.text}
+            </Text>
+          </View>
+        </View>
+        
+        <Text style={styles.location}>
+          {club.city.toUpperCase()}, {club.district.toUpperCase()}
+        </Text>
+        
+        {club.notes ? (
+          <Text style={styles.notes} numberOfLines={3}>
+            {club.notes}
+          </Text>
+        ) : null}
+      </View>
+    </TouchableOpacity>
+  );
+};
 
 const styles = StyleSheet.create({
-  card: {
-    backgroundColor: '#16213e',
-    padding: 14,
-    marginHorizontal: 16,
-    marginVertical: 6,
-    borderRadius: 10,
-  },
-  row: {
+  container: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 2,
   },
-  name: { color: '#e0e0e0', fontSize: 16, fontWeight: '600', flex: 1, marginRight: 8 },
-  sub: { color: '#78909c', fontSize: 12, marginTop: 4 },
-  badge: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 10 },
-  badgeText: { color: '#fff', fontSize: 11, fontWeight: '600' },
+  imagePlaceholder: {
+    width: 56,
+    height: 56,
+    borderRadius: 16,
+    backgroundColor: '#0F172A',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  imageText: {
+    color: '#FFF',
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  content: {
+    flex: 1,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    marginBottom: 4,
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  title: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#0F172A',
+    flex: 1,
+    minWidth: 120, // Prevents pushing the badge off-screen completely
+  },
+  badge: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+    alignSelf: 'flex-start',
+  },
+  badgeText: {
+    fontSize: 10,
+    fontWeight: '700',
+    letterSpacing: 0.5,
+  },
+  location: {
+    fontSize: 11,
+    color: '#64748B',
+    letterSpacing: 0.5,
+    marginBottom: 8,
+    fontWeight: '600',
+  },
+  notes: {
+    fontSize: 13,
+    color: '#475569',
+    lineHeight: 20,
+  },
 });
