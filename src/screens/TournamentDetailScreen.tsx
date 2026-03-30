@@ -165,7 +165,7 @@ export const TournamentDetailScreen: React.FC<TournamentDetailScreenProps> = () 
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: APP_COLORS.primary,
   },
   scrollContent: {
     padding: 16,

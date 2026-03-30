@@ -7,6 +7,7 @@ import { useTournamentStore } from '../store/useTournamentStore';
 import { SummaryCard } from '../components/SummaryCard';
 import { TournamentCard } from '../components/TournamentCard';
 import { AddTournamentBottomSheet } from '../components/AddTournamentBottomSheet';
+import { APP_COLORS } from '../styles/colors';
 
 export const TournamentsScreen = () => {
   const navigation = useNavigation<any>();
@@ -104,7 +105,7 @@ export const TournamentsScreen = () => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: APP_COLORS.primary,
   },
   container: {
     flex: 1,

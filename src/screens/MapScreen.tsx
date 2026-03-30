@@ -1,4 +1,4 @@
-import React, { useRef, useCallback, useState } from 'react';
+import React, { useRef, useCallback, useState } from "react";
 import {
   StyleSheet,
   View,
@@ -6,52 +6,114 @@ import {
   ActivityIndicator,
   Platform,
   TouchableOpacity,
-} from 'react-native';
+  Image,
+} from "react-native";
 import MapView, {
   Marker,
   LongPressEvent,
   PROVIDER_GOOGLE,
-} from 'react-native-maps';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { useLocation } from '../hooks/useLocation';
-import { useClubStore } from '../store/useClubStore';
-import { SCREENS } from '../constants/screenConstants';
-import { MapSearchInput } from '../components/MapSearchInput';
-import { ClubBottomSheet } from '../components/ClubBottomSheet';
-import { APP_COLORS } from '../styles/colors';
-import type { MapScreenProps } from '../types/navigation';
-import type { Club, ClubStatus } from '../types';
+} from "react-native-maps";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { useLocation } from "../hooks/useLocation";
+import { useClubStore } from "../store/useClubStore";
+import { SCREENS } from "../constants/screenConstants";
+import { MapSearchInput } from "../components/MapSearchInput";
+import { ClubBottomSheet } from "../components/ClubBottomSheet";
+import { APP_COLORS } from "../styles/colors";
+import type { MapScreenProps } from "../types/navigation";
+import type { Club, ClubStatus } from "../types";
+import SafeView from "../components/SafeView";
 
 const DELTA = { latitudeDelta: 8.0, longitudeDelta: 12.0 };
 const CITY_ZOOM = { latitudeDelta: 0.15, longitudeDelta: 0.15 };
 const DEFAULT_REGION = { latitude: 39.0, longitude: 35.0, ...DELTA };
 
 const DARK_MAP_STYLE = [
-  { elementType: 'geometry', stylers: [{ color: '#242f3e' }] },
-  { elementType: 'labels.text.fill', stylers: [{ color: '#746855' }] },
-  { elementType: 'labels.text.stroke', stylers: [{ color: '#242f3e' }] },
-  { featureType: 'administrative.locality', elementType: 'labels.text.fill', stylers: [{ color: '#d59563' }] },
-  { featureType: 'poi', elementType: 'labels.text.fill', stylers: [{ color: '#d59563' }] },
-  { featureType: 'poi.park', elementType: 'geometry', stylers: [{ color: '#263c3f' }] },
-  { featureType: 'poi.park', elementType: 'labels.text.fill', stylers: [{ color: '#6b9a76' }] },
-  { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#38414e' }] },
-  { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ color: '#212a37' }] },
-  { featureType: 'road', elementType: 'labels.text.fill', stylers: [{ color: '#9ca5b3' }] },
-  { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#746855' }] },
-  { featureType: 'road.highway', elementType: 'geometry.stroke', stylers: [{ color: '#1f2835' }] },
-  { featureType: 'road.highway', elementType: 'labels.text.fill', stylers: [{ color: '#f3d19c' }] },
-  { featureType: 'transit', elementType: 'geometry', stylers: [{ color: '#2f3948' }] },
-  { featureType: 'transit.station', elementType: 'labels.text.fill', stylers: [{ color: '#d59563' }] },
-  { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#17263c' }] },
-  { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#515c6d' }] },
-  { featureType: 'water', elementType: 'labels.text.stroke', stylers: [{ color: '#17263c' }] },
+  { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
+  { elementType: "labels.text.fill", stylers: [{ color: "#746855" }] },
+  { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
+  {
+    featureType: "administrative.locality",
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#d59563" }],
+  },
+  {
+    featureType: "poi",
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#d59563" }],
+  },
+  {
+    featureType: "poi.park",
+    elementType: "geometry",
+    stylers: [{ color: "#263c3f" }],
+  },
+  {
+    featureType: "poi.park",
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#6b9a76" }],
+  },
+  {
+    featureType: "road",
+    elementType: "geometry",
+    stylers: [{ color: "#38414e" }],
+  },
+  {
+    featureType: "road",
+    elementType: "geometry.stroke",
+    stylers: [{ color: "#212a37" }],
+  },
+  {
+    featureType: "road",
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#9ca5b3" }],
+  },
+  {
+    featureType: "road.highway",
+    elementType: "geometry",
+    stylers: [{ color: "#746855" }],
+  },
+  {
+    featureType: "road.highway",
+    elementType: "geometry.stroke",
+    stylers: [{ color: "#1f2835" }],
+  },
+  {
+    featureType: "road.highway",
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#f3d19c" }],
+  },
+  {
+    featureType: "transit",
+    elementType: "geometry",
+    stylers: [{ color: "#2f3948" }],
+  },
+  {
+    featureType: "transit.station",
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#d59563" }],
+  },
+  {
+    featureType: "water",
+    elementType: "geometry",
+    stylers: [{ color: "#17263c" }],
+  },
+  {
+    featureType: "water",
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#515c6d" }],
+  },
+  {
+    featureType: "water",
+    elementType: "labels.text.stroke",
+    stylers: [{ color: "#17263c" }],
+  },
 ];
 
 const STATUS_COLORS: Record<ClubStatus, string> = {
-  visited: '#66bb6a',
-  proposal: '#ffa726',
-  negotiation: '#42a5f5',
-  deal: '#ab47bc',
+  visited: "#66bb6a",
+  proposal: "#ffa726",
+  negotiation: "#42a5f5",
+  deal: "#ab47bc",
 };
 
 // Basit şehir geocoding (mock)
@@ -75,20 +137,17 @@ export const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
   const selectedClub = useClubStore((s) => s.selectedClub);
   const selectClub = useClubStore((s) => s.selectClub);
 
-  const [searchText, setSearchText] = useState('');
+  const [searchText, setSearchText] = useState("");
 
   // Arama → haritayı animate et
-  const handleSearch = useCallback(
-    (text: string) => {
-      setSearchText(text);
-      const key = text.toLowerCase().trim();
-      const match = CITY_COORDS[key];
-      if (match && mapRef.current) {
-        mapRef.current.animateToRegion({ ...match, ...CITY_ZOOM }, 800);
-      }
-    },
-    [],
-  );
+  const handleSearch = useCallback((text: string) => {
+    setSearchText(text);
+    const key = text.toLowerCase().trim();
+    const match = CITY_COORDS[key];
+    if (match && mapRef.current) {
+      mapRef.current.animateToRegion({ ...match, ...CITY_ZOOM }, 800);
+    }
+  }, []);
 
   // Marker tıklama → bottom sheet aç
   const handleMarkerPress = useCallback(
@@ -108,7 +167,10 @@ export const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
   const handleLongPress = useCallback(
     (e: LongPressEvent) => {
       const { latitude, longitude } = e.nativeEvent.coordinate;
-      navigation.navigate(SCREENS.ADD_CLUB_MODAL, { lat: latitude, lng: longitude });
+      navigation.navigate(SCREENS.ADD_CLUB_MODAL, {
+        lat: latitude,
+        lng: longitude,
+      });
     },
     [navigation],
   );
@@ -146,53 +208,50 @@ export const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
 
   return (
     <GestureHandlerRootView style={styles.container}>
-      {/* Header Bar */}
-      <View style={styles.headerBar}>
-        <Text style={styles.headerLogo}>⚽ DAS SPORTIF</Text>
-        <TouchableOpacity>
-          <Text style={styles.headerSearchIcon}>🔍</Text>
-        </TouchableOpacity>
-      </View>
+      <SafeView>
+        {/* Map */}
+        <View style={styles.mapContainer}>
+          <MapView
+            ref={mapRef}
+            style={styles.map}
+            provider={Platform.OS === "android" ? PROVIDER_GOOGLE : undefined}
+            initialRegion={coords ? { ...coords, ...DELTA } : DEFAULT_REGION}
+            showsUserLocation
+            showsMyLocationButton={false}
+            onLongPress={handleLongPress}
+            mapType="standard"
+            customMapStyle={DARK_MAP_STYLE}
+          >
+            {clubs.map((c) => (
+              <Marker
+                key={c.id}
+                coordinate={{ latitude: c.lat, longitude: c.lng }}
+                pinColor={STATUS_COLORS[c.status]}
+                onPress={() => handleMarkerPress(c)}
+              />
+            ))}
+          </MapView>
 
-      {/* Map */}
-      <View style={styles.mapContainer}>
-        <MapView
-          ref={mapRef}
-          style={styles.map}
-          provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : undefined}
-          initialRegion={coords ? { ...coords, ...DELTA } : DEFAULT_REGION}
-          showsUserLocation
-          showsMyLocationButton={false}
-          onLongPress={handleLongPress}
-          mapType="standard"
-          customMapStyle={DARK_MAP_STYLE}
-        >
-          {clubs.map((c) => (
-            <Marker
-              key={c.id}
-              coordinate={{ latitude: c.lat, longitude: c.lng }}
-              pinColor={STATUS_COLORS[c.status]}
-              onPress={() => handleMarkerPress(c)}
-            />
-          ))}
-        </MapView>
+          {/* Search Overlay */}
+          <MapSearchInput value={searchText} onChangeText={handleSearch} />
 
-        {/* Search Overlay */}
-        <MapSearchInput value={searchText} onChangeText={handleSearch} />
+          {/* FAB - Center to user */}
+          <TouchableOpacity
+            style={styles.fab}
+            onPress={centerToUser}
+            activeOpacity={0.8}
+          >
+            <Text style={{ fontSize: 22 }}>📍</Text>
+          </TouchableOpacity>
 
-        {/* FAB - Center to user */}
-        <TouchableOpacity style={styles.fab} onPress={centerToUser} activeOpacity={0.8}>
-          <Text style={{ fontSize: 22 }}>📍</Text>
-        </TouchableOpacity>
-
-        {/* Club Count Badge */}
-        {clubs.length > 0 && (
-          <View style={styles.badge}>
-            <Text style={styles.badgeText}>⚽ {clubs.length}</Text>
-          </View>
-        )}
-      </View>
-
+          {/* Club Count Badge */}
+          {/* {clubs.length > 0 && (
+            <View style={styles.badge}>
+              <Text style={styles.badgeText}>⚽ {clubs.length}</Text>
+            </View>
+          )} */}
+        </View>
+      </SafeView>
       {/* Bottom Sheet */}
       <ClubBottomSheet club={selectedClub} onDismiss={handleDismissSheet} />
     </GestureHandlerRootView>
@@ -200,73 +259,77 @@ export const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
+  container: { flex: 1, backgroundColor: APP_COLORS.primary },
   mapContainer: { flex: 1 },
   map: { flex: 1 },
   headerBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: Platform.OS === 'ios' ? 56 : 40,
-    paddingBottom: 12,
-    backgroundColor: '#fff',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 18,
+    paddingTop: Platform.OS === "ios" ? 56 : 40,
+    backgroundColor: APP_COLORS.primary,
   },
   headerLogo: {
     fontSize: 18,
-    fontWeight: '900',
-    color: APP_COLORS.primary,
+    fontWeight: "900",
+    color: APP_COLORS.tertiary,
     letterSpacing: 1,
+  },
+  logoImage: {
+    width: 100,
+    height: 75,
+    resizeMode: "contain",
   },
   headerSearchIcon: {
     fontSize: 20,
   },
   centered: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#1a1a2e',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#1a1a2e",
     gap: 12,
   },
-  info: { color: '#b0bec5', fontSize: 16 },
+  info: { color: "#b0bec5", fontSize: 16 },
   error: {
-    color: '#ef5350',
+    color: "#ef5350",
     fontSize: 16,
-    textAlign: 'center',
+    textAlign: "center",
     paddingHorizontal: 24,
   },
   btn: {
-    backgroundColor: '#4fc3f7',
+    backgroundColor: "#4fc3f7",
     paddingHorizontal: 24,
     paddingVertical: 10,
     borderRadius: 8,
     marginTop: 12,
   },
-  btnText: { color: '#fff', fontWeight: '600' },
+  btnText: { color: "#fff", fontWeight: "600" },
   fab: {
-    position: 'absolute',
+    position: "absolute",
     right: 16,
     bottom: 32,
     width: 52,
     height: 52,
     borderRadius: 26,
-    backgroundColor: '#fff',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "#fff",
+    justifyContent: "center",
+    alignItems: "center",
     elevation: 6,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
   },
   badge: {
-    position: 'absolute',
+    position: "absolute",
     top: 16,
-    alignSelf: 'center',
-    backgroundColor: 'rgba(26,26,46,0.85)',
+    alignSelf: "center",
+    backgroundColor: "rgba(26,26,46,0.85)",
     paddingHorizontal: 14,
     paddingVertical: 6,
     borderRadius: 16,
   },
-  badgeText: { color: '#e0e0e0', fontSize: 13, fontWeight: '600' },
+  badgeText: { color: "#e0e0e0", fontSize: 13, fontWeight: "600" },
 });

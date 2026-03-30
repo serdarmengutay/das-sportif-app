@@ -1,12 +1,12 @@
-import React from 'react';
+import React from "react";
 import {
   StyleSheet,
   View,
   TextInput,
   TouchableOpacity,
   Text,
-} from 'react-native';
-import { APP_COLORS } from '../styles/colors';
+} from "react-native";
+import { APP_COLORS } from "../styles/colors";
 
 type Props = {
   value: string;
@@ -39,24 +39,24 @@ export const MapSearchInput: React.FC<Props> = ({
 
 const styles = StyleSheet.create({
   container: {
-    position: 'absolute',
+    position: "absolute",
     top: 60,
     left: 16,
     right: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 10,
     zIndex: 10,
   },
   inputWrapper: {
     flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.95)',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(255,255,255,0.95)",
     borderRadius: 12,
     paddingHorizontal: 14,
     height: 48,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 6,
@@ -77,16 +77,16 @@ const styles = StyleSheet.create({
     height: 48,
     borderRadius: 12,
     backgroundColor: APP_COLORS.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
     shadowRadius: 4,
     elevation: 4,
   },
   filterIcon: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 20,
   },
 });

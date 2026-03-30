@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useClubStore } from '../store/useClubStore';
 import { SummaryCard } from '../components/SummaryCard';
 import { ClubCard } from '../components/ClubCard';
+import { APP_COLORS } from '../styles/colors';
 
 export const ClubsScreen = () => {
   const navigation = useNavigation<any>();
@@ -87,7 +88,7 @@ export const ClubsScreen = () => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: APP_COLORS.primary,
   },
   container: {
     flex: 1,

@@ -2,6 +2,8 @@ import { StyleProp, StyleSheet, View, ViewStyle } from "react-native";
 import React from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { APP_COLORS } from "../styles/colors";
+
 // main safe area view container'i
 const SafeView = ({
   children,
@@ -12,7 +14,7 @@ const SafeView = ({
 }) => {
   const { top } = useSafeAreaInsets();
   return (
-    <View style={[styles.container, { paddingTop: top }, style]}>
+    <View style={[styles.container, { paddingTop: top, backgroundColor: APP_COLORS.primary }, style]}>
       {children}
     </View>
   );
@@ -23,6 +25,5 @@ export default SafeView;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center",
   },
 });
