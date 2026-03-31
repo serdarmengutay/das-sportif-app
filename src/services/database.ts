@@ -71,13 +71,15 @@ export const insertClub = async (data: ClubInsert): Promise<Club> => {
   const database = await getDatabase();
   const id = uid('club');
   const createdAt = Date.now();
-  const sql = `INSERT INTO clubs (id,name,city,district,status,notes,coachPhone,createdAt)
-     VALUES (?,?,?,?,?,?,?,?)`;
+  const sql = `INSERT INTO clubs (id,name,city,district,lat,lng,status,notes,coachPhone,createdAt)
+     VALUES (?,?,?,?,?,?,?,?,?,?)`;
   const params = [
     id,
     data.name || '',
     data.city || '',
     data.district || '',
+    data.lat || 0,
+    data.lng || 0,
     data.status || 'visited',
     data.notes || '',
     data.coachPhone || '',
@@ -133,12 +135,14 @@ export const deleteClub = async (id: string): Promise<void> => {
 
 export const upsertClub = async (club: Club): Promise<void> => {
   const database = await getDatabase();
-  const sql = `INSERT INTO clubs (id, name, city, district, status, notes, coachPhone, createdAt)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+  const sql = `INSERT INTO clubs (id, name, city, district, lat, lng, status, notes, coachPhone, createdAt)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                ON CONFLICT(id) DO UPDATE SET
                name=excluded.name,
                city=excluded.city,
                district=excluded.district,
+               lat=excluded.lat,
+               lng=excluded.lng,
                status=excluded.status,
                notes=excluded.notes,
                coachPhone=excluded.coachPhone;`;
@@ -147,6 +151,8 @@ export const upsertClub = async (club: Club): Promise<void> => {
     club.name || '',
     club.city || '',
     club.district || '',
+    club.lat || 0,
+    club.lng || 0,
     club.status || 'visited',
     club.notes || '',
     club.coachPhone || '',

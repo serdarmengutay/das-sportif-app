@@ -3,4 +3,5 @@ export const APP_COLORS = {
   secondary: "#A88435",
   tertiary: "#f5f5f5",
   background: "#243a59ff",
+  light_bg: "#EDEEEF",
 };

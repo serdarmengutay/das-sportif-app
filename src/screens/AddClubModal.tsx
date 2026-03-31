@@ -19,7 +19,7 @@ export const AddClubModal: React.FC<AddClubModalProps> = ({ route, navigation })
       lat,
       lng,
       notes: notes.trim(),
-      phone: '',
+      coachPhone: '',
       status: 'visited',
     });
     

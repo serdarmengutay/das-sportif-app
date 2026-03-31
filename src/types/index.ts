@@ -7,6 +7,8 @@ export type Club = {
   name: string;
   city: string;
   district: string;
+  lat: number;
+  lng: number;
   status: ClubStatus;
   notes: string;
   coachPhone: string;

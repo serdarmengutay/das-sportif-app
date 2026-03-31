@@ -135,7 +135,7 @@ export const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
   const { coords, loading, error, refetch } = useLocation();
   const clubs = useClubStore((s) => s.clubs);
   const selectedClub = useClubStore((s) => s.selectedClub);
-  const selectClub = useClubStore((s) => s.selectClub);
+  const setSelectedClub = useClubStore((s) => s.setSelectedClub);
 
   const [searchText, setSearchText] = useState("");
 
@@ -152,7 +152,7 @@ export const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
   // Marker tıklama → bottom sheet aç
   const handleMarkerPress = useCallback(
     (club: Club) => {
-      selectClub(club);
+      setSelectedClub(club);
       if (mapRef.current) {
         mapRef.current.animateToRegion(
           { latitude: club.lat, longitude: club.lng, ...CITY_ZOOM },
@@ -160,7 +160,7 @@ export const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
         );
       }
     },
-    [selectClub],
+    [setSelectedClub],
   );
 
   // Long press → AddClubModal
@@ -177,8 +177,8 @@ export const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
 
   // Bottom sheet kapatma
   const handleDismissSheet = useCallback(() => {
-    selectClub(null);
-  }, [selectClub]);
+    setSelectedClub(null);
+  }, [setSelectedClub]);
 
   // Konuma geri dön
   const centerToUser = useCallback(() => {

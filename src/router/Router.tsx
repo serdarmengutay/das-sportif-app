@@ -68,7 +68,7 @@ const MainTabs = () => {
           alignItems: "center",
           justifyContent: "space-evenly",
           height: 95,
-          backgroundColor: APP_COLORS.background,
+          backgroundColor: APP_COLORS.tertiary,
           width: screenWidth,
           shadowColor: "#000",
           shadowOffset: {
@@ -84,8 +84,8 @@ const MainTabs = () => {
           paddingTop: PaddingTopCalculate(),
           paddingHorizontal: screenWidth * 0.04, // bottom tabs butonlarının arasındaki boşluğu azaltır.
         },
-        tabBarActiveTintColor: APP_COLORS.secondary,
-        tabBarInactiveTintColor: APP_COLORS.tertiary,
+        tabBarActiveTintColor: APP_COLORS.primary,
+        tabBarInactiveTintColor: APP_COLORS.secondary,
       }}
     >
       <Tab.Screen
@@ -97,7 +97,7 @@ const MainTabs = () => {
               <MaterialCommunityIcons
                 name={focused ? "map-search" : "map-search-outline"}
                 size={24}
-                color={focused ? APP_COLORS.secondary : APP_COLORS.tertiary}
+                color={focused ? APP_COLORS.primary : APP_COLORS.secondary}
               />
             </View>
           ),
@@ -114,7 +114,7 @@ const MainTabs = () => {
               <MaterialCommunityIcons
                 name={focused ? "soccer" : "soccer"}
                 size={24}
-                color={focused ? APP_COLORS.secondary : APP_COLORS.tertiary}
+                color={focused ? APP_COLORS.primary : APP_COLORS.secondary}
               />
             </View>
           ),
@@ -131,7 +131,7 @@ const MainTabs = () => {
               <MaterialCommunityIcons
                 name={focused ? "trophy" : "trophy-outline"}
                 size={24}
-                color={focused ? APP_COLORS.secondary : APP_COLORS.tertiary}
+                color={focused ? APP_COLORS.primary : APP_COLORS.secondary}
               />
             </View>
           ),

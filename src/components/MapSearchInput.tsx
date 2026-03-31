@@ -7,6 +7,7 @@ import {
   Text,
 } from "react-native";
 import { APP_COLORS } from "../styles/colors";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 type Props = {
   value: string;
@@ -21,7 +22,12 @@ export const MapSearchInput: React.FC<Props> = ({
 }) => (
   <View style={styles.container}>
     <View style={styles.inputWrapper}>
-      <Text style={styles.searchIcon}>🔍</Text>
+      <MaterialCommunityIcons
+        style={styles.searchIcon}
+        name="magnify"
+        size={24}
+        color={APP_COLORS.primary}
+      />
       <TextInput
         style={styles.input}
         placeholder="Kulüp, şehir veya branş ara..."
@@ -31,9 +37,6 @@ export const MapSearchInput: React.FC<Props> = ({
         returnKeyType="search"
       />
     </View>
-    <TouchableOpacity style={styles.filterBtn} onPress={onFilterPress}>
-      <Text style={styles.filterIcon}>☰</Text>
-    </TouchableOpacity>
   </View>
 );
 
@@ -63,8 +66,7 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   searchIcon: {
-    fontSize: 16,
-    marginRight: 8,
+    marginRight: 12,
   },
   input: {
     flex: 1,

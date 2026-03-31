@@ -8,6 +8,8 @@ export const CREATE_CLUBS_TABLE = `
     name TEXT NOT NULL,
     city TEXT NOT NULL DEFAULT '',
     district TEXT NOT NULL DEFAULT '',
+    lat REAL NOT NULL DEFAULT 0,
+    lng REAL NOT NULL DEFAULT 0,
     status TEXT NOT NULL DEFAULT 'visited',
     notes TEXT NOT NULL DEFAULT '',
     coachPhone TEXT NOT NULL DEFAULT '',

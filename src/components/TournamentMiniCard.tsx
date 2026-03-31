@@ -4,7 +4,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { StatusBadge, type StatusBadgeConfig } from "./StatusBadge";
 import type { Tournament, TournamentStatus } from "../types";
 
-interface TournamentCardProps {
+interface TournamentMiniCardProps {
   tournament: Tournament;
   onPress: (id: string) => void;
 }
@@ -41,23 +41,19 @@ const formatDate = (timestamp: number | null) => {
   const date = new Date(timestamp);
   return date.toLocaleDateString("tr-TR", {
     day: "2-digit",
-    month: "long",
-    year: "numeric",
+    month: "short",
   });
 };
 
-export const TournamentCard: React.FC<TournamentCardProps> = ({
+export const TournamentMiniCard: React.FC<TournamentMiniCardProps> = ({
   tournament,
   onPress,
 }) => {
   const statusConfig = getStatusConfig(tournament.status);
-
   const startStr = formatDate(tournament.startDate);
   const endStr = formatDate(tournament.endDate);
   const dateText =
-    startStr && endStr
-      ? `${startStr} - ${endStr}`
-      : startStr || endStr || "Tarih Belirlenmedi";
+    startStr && endStr ? `${startStr} – ${endStr}` : startStr || endStr || "—";
 
   return (
     <TouchableOpacity
@@ -66,7 +62,7 @@ export const TournamentCard: React.FC<TournamentCardProps> = ({
       onPress={() => onPress(tournament.id)}
     >
       <View style={styles.topRow}>
-        <Text style={styles.title} numberOfLines={1}>
+        <Text style={styles.name} numberOfLines={1}>
           {tournament.name}
         </Text>
         <StatusBadge config={statusConfig} />
@@ -75,7 +71,7 @@ export const TournamentCard: React.FC<TournamentCardProps> = ({
       <View style={styles.infoRow}>
         <MaterialCommunityIcons
           name="calendar-month-outline"
-          size={14}
+          size={13}
           color="#64748b"
         />
         <Text style={styles.infoText}>{dateText}</Text>
@@ -84,18 +80,11 @@ export const TournamentCard: React.FC<TournamentCardProps> = ({
       <View style={styles.infoRow}>
         <MaterialCommunityIcons
           name="map-marker-outline"
-          size={14}
+          size={13}
           color="#64748b"
         />
         <Text style={styles.infoText}>
           {tournament.city}, {tournament.locationName}
-        </Text>
-      </View>
-
-      <View style={styles.infoRow}>
-        <MaterialCommunityIcons name="soccer" size={14} color="#0f172a" />
-        <Text style={styles.participantText}>
-          {tournament.participantCount} Takım
         </Text>
       </View>
     </TouchableOpacity>
@@ -104,25 +93,22 @@ export const TournamentCard: React.FC<TournamentCardProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#ffffff",
-    borderRadius: 18,
-    padding: 16,
-    marginBottom: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+    backgroundColor: "#f8fafc",
+    borderRadius: 14,
+    padding: 14,
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
   },
   topRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 12,
+    marginBottom: 8,
   },
-  title: {
-    fontSize: 16,
-    fontWeight: "bold",
+  name: {
+    fontSize: 14,
+    fontWeight: "600",
     color: "#0f172a",
     flex: 1,
     marginRight: 8,
@@ -130,17 +116,11 @@ const styles = StyleSheet.create({
   infoRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 6,
+    marginBottom: 4,
   },
   infoText: {
     fontSize: 12,
     color: "#64748b",
-    marginLeft: 6,
-  },
-  participantText: {
-    fontSize: 13,
-    fontWeight: "600",
-    color: "#0f172a",
-    marginLeft: 6,
+    marginLeft: 5,
   },
 });

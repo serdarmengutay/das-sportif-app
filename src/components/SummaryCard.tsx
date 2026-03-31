@@ -1,84 +1,67 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React from "react";
+import { View, Text, StyleSheet } from "react-native";
+import { APP_COLORS } from "../styles/colors";
 
 interface SummaryCardProps {
-  items: {
-    label: string;
-    value: string;
-    subtext?: string;
-    icon?: React.ReactNode;
-    color: string;
-  }[];
+  total: number;
+  deal: number;
+  pending: number;
 }
 
-export const SummaryCard: React.FC<SummaryCardProps> = ({ items }) => {
+export const SummaryCard: React.FC<SummaryCardProps> = ({
+  total,
+  deal,
+  pending,
+}) => {
   return (
     <View style={styles.container}>
-      {items.map((item, index) => (
-        <View key={index} style={[styles.card, { borderLeftColor: item.color }]}>
-          <View style={styles.content}>
-            <Text style={styles.label}>{item.label}</Text>
-            <View style={styles.row}>
-              <Text style={styles.value}>{item.value}</Text>
-              {item.subtext ? (
-                <Text style={styles.subtext}>{item.subtext}</Text>
-              ) : null}
-              {item.icon ? <View style={styles.iconContainer}>{item.icon}</View> : null}
-            </View>
-          </View>
-        </View>
-      ))}
+      <View style={styles.card}>
+        <Text style={styles.value}>{total}</Text>
+        <Text style={styles.title}>Toplam Kulüp</Text>
+      </View>
+      <View style={styles.card}>
+        <Text style={styles.value}>{deal}</Text>
+        <Text style={styles.title}>Anlaşılan</Text>
+      </View>
+      <View style={styles.card}>
+        <Text style={styles.value}>{pending}</Text>
+        <Text style={styles.title}>Bekleyen</Text>
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 24,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
     gap: 12,
   },
   card: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    borderLeftWidth: 4,
-    padding: 16,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.05,
+    flex: 1,
+    aspectRatio: 1,
+    backgroundColor: APP_COLORS.primary,
+    borderRadius: 18,
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 2,
   },
-  content: {
-    flex: 1,
-  },
-  label: {
-    fontSize: 12,
-    color: '#64748B',
-    fontWeight: '600',
-    letterSpacing: 0.5,
-    marginBottom: 8,
-    textTransform: 'uppercase',
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-  },
   value: {
-    fontSize: 28,
-    fontWeight: '800',
-    color: '#0F172A',
+    fontSize: 36,
+    fontWeight: "bold",
+    color: APP_COLORS.tertiary,
+    marginBottom: 4,
   },
-  subtext: {
+  title: {
     fontSize: 12,
-    color: '#64748B',
-    marginLeft: 12,
-    fontWeight: '500',
-  },
-  iconContainer: {
-    marginLeft: 'auto',
-    opacity: 0.3,
+    color: APP_COLORS.tertiary,
+    fontWeight: "500",
+    textAlign: "center",
   },
 });

@@ -19,17 +19,17 @@ const STATUS_OPTIONS: { value: ClubStatus; label: string; color: string }[] = [
 
 type Props = {
   club: Club;
-  onSave: (data: { status: ClubStatus; notes: string; phone: string }) => void;
+  onSave: (data: { status: ClubStatus; notes: string; coachPhone: string }) => void;
   onCancel: () => void;
 };
 
 export const ClubEditForm: React.FC<Props> = ({ club, onSave, onCancel }) => {
   const [status, setStatus] = useState<ClubStatus>(club.status);
   const [notes, setNotes] = useState(club.notes);
-  const [phone, setPhone] = useState(club.phone);
+  const [coachPhone, setCoachPhone] = useState(club.coachPhone);
 
   const handleSave = () => {
-    onSave({ status, notes: notes.trim(), phone: phone.trim() });
+    onSave({ status, notes: notes.trim(), coachPhone: coachPhone.trim() });
   };
 
   return (
@@ -81,8 +81,8 @@ export const ClubEditForm: React.FC<Props> = ({ club, onSave, onCancel }) => {
         style={styles.input}
         placeholder="0(5XX) XXX XX XX"
         placeholderTextColor="#78909c"
-        value={phone}
-        onChangeText={setPhone}
+        value={coachPhone}
+        onChangeText={setCoachPhone}
         keyboardType="phone-pad"
       />
 

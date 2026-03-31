@@ -62,7 +62,7 @@ export const ClubBottomSheet: React.FC<Props> = ({ club, onDismiss }) => {
   }, []);
 
   const handleSave = useCallback(
-    async (data: { status: ClubStatus; notes: string; phone: string }) => {
+    async (data: { status: ClubStatus; notes: string; coachPhone: string }) => {
       if (!club) return;
       await updateClub(club.id, data);
       setIsEditMode(false);
@@ -150,11 +150,11 @@ const DetailView: React.FC<DetailViewProps> = ({ club, onEdit, onViewDetails }) 
     </View>
 
     {/* Info Cards */}
-    {club.phone ? (
+    {club.coachPhone ? (
       <View style={styles.infoRow}>
         <View style={styles.infoCard}>
           <Text style={styles.infoLabel}>TELEFON</Text>
-          <Text style={styles.infoValue}>{club.phone}</Text>
+          <Text style={styles.infoValue}>{club.coachPhone}</Text>
         </View>
       </View>
     ) : null}
