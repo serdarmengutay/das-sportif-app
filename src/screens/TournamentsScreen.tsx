@@ -1,17 +1,22 @@
 import React, { useEffect, useRef } from "react";
-import { View, Text, StyleSheet, FlatList, RefreshControl } from "react-native";
+import { View, Text, StyleSheet, FlatList, RefreshControl, TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import BottomSheet from "@gorhom/bottom-sheet";
+import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { useTournamentStore } from "../store/useTournamentStore";
 import { TournamentCard } from "../components/TournamentCard";
 import { AddTournamentBottomSheet } from "../components/AddTournamentBottomSheet";
 import { APP_COLORS } from "../styles/colors";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 export const TournamentsScreen = () => {
   const navigation = useNavigation<any>();
   const { tournaments, loading, loadTournaments } = useTournamentStore();
-  const bottomSheetRef = useRef<BottomSheet>(null);
+  const bottomSheetRef = useRef<BottomSheetModal>(null);
+
+  const handleOpenAddModal = () => {
+    bottomSheetRef.current?.present();
+  };
 
   useEffect(() => {
     loadTournaments();
@@ -55,6 +60,13 @@ export const TournamentsScreen = () => {
             ) : null
           }
         />
+        <TouchableOpacity
+          style={styles.fab}
+          onPress={handleOpenAddModal}
+          activeOpacity={0.8}
+        >
+          <MaterialCommunityIcons name="plus" size={30} color="#fff" />
+        </TouchableOpacity>
         <AddTournamentBottomSheet ref={bottomSheetRef} />
       </View>
     </SafeAreaView>
@@ -89,5 +101,21 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 14,
     color: "#94a3b8",
+  },
+  fab: {
+    position: "absolute",
+    right: 16,
+    bottom: 32,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: APP_COLORS.secondary,
+    justifyContent: "center",
+    alignItems: "center",
+    elevation: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
   },
 });

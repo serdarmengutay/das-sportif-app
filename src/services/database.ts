@@ -71,18 +71,19 @@ export const insertClub = async (data: ClubInsert): Promise<Club> => {
   const database = await getDatabase();
   const id = uid('club');
   const createdAt = Date.now();
-  const sql = `INSERT INTO clubs (id,name,city,district,lat,lng,status,notes,coachPhone,createdAt)
-     VALUES (?,?,?,?,?,?,?,?,?,?)`;
+  const sql = `INSERT INTO clubs (id,name,city,district,lat,lng,status,notes,coachPhone,coachName,createdAt)
+     VALUES (?,?,?,?,?,?,?,?,?,?,?)`;
   const params = [
     id,
-    data.name || '',
+    data.name ? data.name.trim() : '',
     data.city || '',
     data.district || '',
-    data.lat || 0,
-    data.lng || 0,
+    Number(data.lat) || 0,
+    Number(data.lng) || 0,
     data.status || 'visited',
-    data.notes || '',
-    data.coachPhone || '',
+    data.notes ? data.notes.trim() : '',
+    data.coachPhone ? data.coachPhone.trim() : '',
+    data.coachName ? data.coachName.trim() : '',
     createdAt,
   ];
 
@@ -135,8 +136,8 @@ export const deleteClub = async (id: string): Promise<void> => {
 
 export const upsertClub = async (club: Club): Promise<void> => {
   const database = await getDatabase();
-  const sql = `INSERT INTO clubs (id, name, city, district, lat, lng, status, notes, coachPhone, createdAt)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  const sql = `INSERT INTO clubs (id, name, city, district, lat, lng, status, notes, coachPhone, coachName, createdAt)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                ON CONFLICT(id) DO UPDATE SET
                name=excluded.name,
                city=excluded.city,
@@ -145,7 +146,8 @@ export const upsertClub = async (club: Club): Promise<void> => {
                lng=excluded.lng,
                status=excluded.status,
                notes=excluded.notes,
-               coachPhone=excluded.coachPhone;`;
+               coachPhone=excluded.coachPhone,
+               coachName=excluded.coachName;`;
   const params = [
     club.id,
     club.name || '',
@@ -156,6 +158,7 @@ export const upsertClub = async (club: Club): Promise<void> => {
     club.status || 'visited',
     club.notes || '',
     club.coachPhone || '',
+    club.coachName || '',
     club.createdAt || Date.now()
   ];
   await database.runAsync(sql, params);

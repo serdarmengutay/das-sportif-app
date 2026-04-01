@@ -9,42 +9,10 @@ interface ClubCardProps {
   onPress: (id: string) => void;
 }
 
-const getStatusConfig = (status: ClubStatus): StatusBadgeConfig => {
-  switch (status) {
-    case "deal":
-      return {
-        text: "Anlaşıldı",
-        backgroundColor: "#a855f7",
-        color: "#ffffff",
-        icon: "handshake",
-      };
-    case "negotiation":
-      return {
-        text: "Görüşülüyor",
-        backgroundColor: "#3b82f6",
-        color: "#ffffff",
-        icon: "chat-processing-outline",
-      };
-    case "proposal":
-      return {
-        text: "Teklif",
-        backgroundColor: "#f97316",
-        color: "#ffffff",
-        icon: "file-document-edit-outline",
-      };
-    case "visited":
-    default:
-      return {
-        text: "Ziyaret Edildi",
-        backgroundColor: "#22c55e",
-        color: "#ffffff",
-        icon: "map-marker-check-outline",
-      };
-  }
-};
+import { getClubStatusConfig } from "../utils/statusUtils";
 
 export const ClubCard: React.FC<ClubCardProps> = ({ club, onPress }) => {
-  const statusConfig = getStatusConfig(club.status);
+  const statusConfig = getClubStatusConfig(club.status);
 
   return (
     <TouchableOpacity

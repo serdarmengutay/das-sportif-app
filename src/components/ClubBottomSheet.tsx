@@ -1,311 +1,275 @@
-import React, { useCallback, useMemo, useRef, useState, useEffect } from 'react';
+import React, { forwardRef, useCallback, useMemo } from "react";
+import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
 import {
-  StyleSheet,
-  View,
-  Text,
-  TouchableOpacity,
-  Image,
-} from 'react-native';
-import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
-import { APP_COLORS } from '../styles/colors';
-import { ClubEditForm } from './ClubEditForm';
-import { useClubStore } from '../store/useClubStore';
-import { SCREENS } from '../constants/screenConstants';
-import { useAppNavigation } from '../hooks/useGlobal/useAppNavigation';
-import type { Club, ClubStatus } from '../types';
+  BottomSheetModal,
+  BottomSheetView,
+  BottomSheetBackdrop,
+} from "@gorhom/bottom-sheet";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { APP_COLORS } from "../styles/colors";
+import { StatusBadge, type StatusBadgeConfig } from "./StatusBadge";
+import { SCREENS } from "../constants/screenConstants";
+import { useAppNavigation } from "../hooks/useGlobal/useAppNavigation";
+import type { Club, ClubStatus } from "../types";
 
-const STATUS_LABELS: Record<ClubStatus, string> = {
-  visited: 'ZİYARET EDİLDİ',
-  proposal: 'TEKLİF',
-  negotiation: 'GÖRÜŞME',
-  deal: 'ANLAŞMA',
-};
+// ── Status Config ──────────────────────────────────────────
 
-const STATUS_COLORS: Record<ClubStatus, string> = {
-  visited: '#66bb6a',
-  proposal: '#ffa726',
-  negotiation: '#42a5f5',
-  deal: '#ab47bc',
-};
+import { getClubStatusConfig } from "../utils/statusUtils";
 
 type Props = {
   club: Club | null;
   onDismiss: () => void;
 };
 
-export const ClubBottomSheet: React.FC<Props> = ({ club, onDismiss }) => {
-  const bottomSheetRef = useRef<BottomSheet>(null);
-  const [isEditMode, setIsEditMode] = useState(false);
-  const navigation = useAppNavigation();
-  const updateClub = useClubStore((s) => s.updateClub);
+export const ClubBottomSheet = forwardRef<BottomSheetModal, Props>(
+  ({ club, onDismiss }, ref) => {
+    const navigation = useAppNavigation();
+    const snapPoints = useMemo(() => ["45%", "60%"], []);
 
-  const snapPoints = useMemo(() => ['40%', '85%'], []);
+    const renderBackdrop = useCallback(
+      (props: any) => (
+        <BottomSheetBackdrop
+          {...props}
+          disappearsOnIndex={-1}
+          appearsOnIndex={0}
+          opacity={0.5}
+          pressBehavior="close"
+        />
+      ),
+      [],
+    );
 
-  // Club değiştiğinde sheet'i aç ve edit modunu kapat
-  useEffect(() => {
-    if (club) {
-      setIsEditMode(false);
-      bottomSheetRef.current?.snapToIndex(0);
-    } else {
-      bottomSheetRef.current?.close();
-    }
-  }, [club]);
-
-  const handleEditPress = useCallback(() => {
-    setIsEditMode(true);
-    bottomSheetRef.current?.snapToIndex(1);
-  }, []);
-
-  const handleCancelEdit = useCallback(() => {
-    setIsEditMode(false);
-    bottomSheetRef.current?.snapToIndex(0);
-  }, []);
-
-  const handleSave = useCallback(
-    async (data: { status: ClubStatus; notes: string; coachPhone: string }) => {
+    const handleViewDetails = useCallback(() => {
       if (!club) return;
-      await updateClub(club.id, data);
-      setIsEditMode(false);
-      bottomSheetRef.current?.snapToIndex(0);
-    },
-    [club, updateClub],
-  );
-
-  const handleViewDetails = useCallback(() => {
-    if (!club) return;
-    onDismiss();
-    navigation.navigate(SCREENS.CLUB_DETAIL, { clubId: club.id });
-  }, [club, navigation, onDismiss]);
-
-  const handleSheetChange = useCallback(
-    (index: number) => {
-      if (index === -1) {
-        setIsEditMode(false);
-        onDismiss();
+      // Close modal first
+      if (typeof ref !== "function" && ref?.current) {
+        ref.current.dismiss();
       }
-    },
-    [onDismiss],
-  );
+      navigation.navigate(SCREENS.CLUB_DETAIL, { clubId: club.id });
+    }, [club, navigation, ref]);
 
-  if (!club) return null;
+    if (!club) return null;
 
-  return (
-    <BottomSheet
-      ref={bottomSheetRef}
-      index={0}
-      snapPoints={snapPoints}
-      onChange={handleSheetChange}
-      enablePanDownToClose
-      backgroundStyle={styles.sheetBackground}
-      handleIndicatorStyle={styles.indicator}
-    >
-      <BottomSheetView style={styles.sheetContent}>
-        {isEditMode ? (
-          <ClubEditForm
-            club={club}
-            onSave={handleSave}
-            onCancel={handleCancelEdit}
-          />
-        ) : (
-          <DetailView
-            club={club}
-            onEdit={handleEditPress}
-            onViewDetails={handleViewDetails}
-          />
-        )}
-      </BottomSheetView>
-    </BottomSheet>
-  );
-};
+    const statusConfig = getClubStatusConfig(club.status);
 
-// ─── Detail View (alt bileşen) ─────────────────────────────
+    return (
+      <BottomSheetModal
+        ref={ref}
+        index={0}
+        snapPoints={snapPoints}
+        onDismiss={onDismiss}
+        backdropComponent={renderBackdrop}
+        backgroundStyle={styles.sheetBackground}
+        handleIndicatorStyle={styles.indicator}
+      >
+        <BottomSheetView style={styles.content}>
+          {/* Header Section */}
+          <View style={styles.header}>
+            <View style={styles.titleGroup}>
+              <Text style={styles.clubName} numberOfLines={1}>
+                {club.name}
+              </Text>
+              <View style={styles.locationRow}>
+                <MaterialCommunityIcons
+                  name="map-marker"
+                  size={14}
+                  color="#64748b"
+                />
+                <Text style={styles.locationText} numberOfLines={1}>
+                  {club.district ? `${club.district}, ` : ""}
+                  {club.city}
+                </Text>
+              </View>
+            </View>
+            <StatusBadge config={statusConfig} />
+          </View>
 
-type DetailViewProps = {
-  club: Club;
-  onEdit: () => void;
-  onViewDetails: () => void;
-};
+          <View style={styles.divider} />
 
-const DetailView: React.FC<DetailViewProps> = ({ club, onEdit, onViewDetails }) => (
-  <View style={styles.detailContainer}>
-    {/* Status Badge */}
-    <View style={[styles.statusBadge, { backgroundColor: STATUS_COLORS[club.status] }]}>
-      <Text style={styles.statusBadgeText}>{STATUS_LABELS[club.status]}</Text>
-    </View>
+          {/* Info Section */}
+          <View style={styles.infoSection}>
+            {/* Coach Info */}
+            <View style={styles.infoRow}>
+              <View style={styles.iconBox}>
+                <MaterialCommunityIcons
+                  name="account-tie"
+                  size={20}
+                  color={APP_COLORS.primary}
+                />
+              </View>
+              <View>
+                <Text style={styles.infoLabel}>KULÜP YETKİLİSİ</Text>
+                <Text style={styles.infoValue}>
+                  {club.coachName || "Belirtilmedi"}
+                </Text>
+              </View>
+            </View>
 
-    {/* Club Name + Image */}
-    <View style={styles.headerRow}>
-      <View style={styles.headerTexts}>
-        <Text style={styles.clubName}>{club.name}</Text>
-        {(club.city || club.district) && (
-          <Text style={styles.location}>
-            📍 {club.district ? `${club.district}, ` : ''}
-            {club.city}
-          </Text>
-        )}
-      </View>
-      <View style={styles.clubImageContainer}>
-        <Text style={styles.clubImagePlaceholder}>⚽</Text>
-      </View>
-    </View>
+            <View style={styles.infoRow}>
+              <View style={styles.iconBox}>
+                <MaterialCommunityIcons
+                  name="phone"
+                  size={20}
+                  color={APP_COLORS.primary}
+                />
+              </View>
+              <View>
+                <Text style={styles.infoLabel}>TELEFON NUMARASI</Text>
+                <Text style={styles.infoValue}>
+                  {club.coachPhone || "Belirtilmedi"}
+                </Text>
+              </View>
+            </View>
 
-    {/* Info Cards */}
-    {club.coachPhone ? (
-      <View style={styles.infoRow}>
-        <View style={styles.infoCard}>
-          <Text style={styles.infoLabel}>TELEFON</Text>
-          <Text style={styles.infoValue}>{club.coachPhone}</Text>
-        </View>
-      </View>
-    ) : null}
+            {/* Notes Section */}
+            <View style={styles.notesBox}>
+              <View style={styles.notesHeader}>
+                <MaterialCommunityIcons
+                  name="note-text-outline"
+                  size={16}
+                  color="#64748b"
+                />
+                <Text style={styles.notesLabel}>NOTLAR</Text>
+              </View>
+              <Text style={styles.notesText} numberOfLines={3}>
+                {club.notes || "Henüz bir not eklenmemiş."}
+              </Text>
+            </View>
+          </View>
 
-    {/* Action Buttons */}
-    <View style={styles.actionRow}>
-      <TouchableOpacity style={styles.editPinBtn} onPress={onEdit}>
-        <Text style={styles.editPinBtnText}>📝 DÜZENLE</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.updateStatusBtn} onPress={onEdit}>
-        <Text style={styles.updateStatusBtnText}>⇆ DURUMU GÜNCELLE</Text>
-      </TouchableOpacity>
-    </View>
-
-    {/* View Details Button */}
-    <TouchableOpacity style={styles.detailsBtn} onPress={onViewDetails}>
-      <Text style={styles.detailsBtnText}>DETAYLARI GÖR →</Text>
-    </TouchableOpacity>
-  </View>
+          {/* Action Button */}
+          <TouchableOpacity
+            style={styles.detailsBtn}
+            onPress={handleViewDetails}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.detailsBtnText}>DETAYLARI GÖR</Text>
+            <MaterialCommunityIcons name="chevron-right" size={20} color="#fff" />
+          </TouchableOpacity>
+        </BottomSheetView>
+      </BottomSheetModal>
+    );
+  },
 );
 
 const styles = StyleSheet.create({
   sheetBackground: {
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 10,
-    elevation: 10,
+    backgroundColor: "#fff",
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
   },
   indicator: {
-    backgroundColor: '#ccc',
+    backgroundColor: "#e2e8f0",
     width: 40,
   },
-  sheetContent: {
+  content: {
     flex: 1,
-  },
-  detailContainer: {
     paddingHorizontal: 20,
-    paddingTop: 8,
+    paddingTop: 12,
+    paddingBottom: 24,
   },
-  statusBadge: {
-    alignSelf: 'flex-start',
-    paddingHorizontal: 14,
-    paddingVertical: 5,
-    borderRadius: 20,
-    marginBottom: 12,
-  },
-  statusBadgeText: {
-    color: '#fff',
-    fontSize: 11,
-    fontWeight: '800',
-    letterSpacing: 1,
-  },
-  headerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
     marginBottom: 16,
   },
-  headerTexts: {
+  titleGroup: {
     flex: 1,
     marginRight: 12,
   },
   clubName: {
-    fontSize: 24,
-    fontWeight: '800',
-    color: APP_COLORS.primary,
-    lineHeight: 30,
+    fontSize: 22,
+    fontWeight: "800",
+    color: "#0f172a",
+    marginBottom: 4,
   },
-  location: {
-    color: '#78909c',
+  locationRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+  locationText: {
     fontSize: 13,
-    marginTop: 6,
+    color: "#64748b",
+    fontWeight: "500",
   },
-  clubImageContainer: {
-    width: 56,
-    height: 56,
-    borderRadius: 12,
-    backgroundColor: '#f0f0f0',
-    justifyContent: 'center',
-    alignItems: 'center',
+  divider: {
+    height: 1,
+    backgroundColor: "#f1f5f9",
+    marginBottom: 20,
   },
-  clubImagePlaceholder: {
-    fontSize: 28,
+  infoSection: {
+    gap: 16,
+    flex: 1,
   },
   infoRow: {
-    flexDirection: 'row',
-    gap: 10,
-    marginBottom: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
   },
-  infoCard: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-    borderRadius: 12,
-    padding: 14,
+  iconBox: {
+    width: 38,
+    height: 38,
+    borderRadius: 10,
+    backgroundColor: "#f1f5f9",
+    justifyContent: "center",
+    alignItems: "center",
   },
   infoLabel: {
     fontSize: 10,
-    fontWeight: '700',
-    color: '#78909c',
+    fontWeight: "700",
+    color: "#94a3b8",
     letterSpacing: 0.5,
-    marginBottom: 4,
+    marginBottom: 2,
   },
   infoValue: {
     fontSize: 15,
-    fontWeight: '700',
-    color: APP_COLORS.primary,
+    fontWeight: "600",
+    color: "#1e293b",
   },
-  actionRow: {
-    flexDirection: 'row',
-    gap: 10,
-    marginBottom: 16,
+  notesBox: {
+    backgroundColor: "#f8fafc",
+    padding: 12,
+    borderRadius: 14,
+    marginTop: 4,
   },
-  editPinBtn: {
-    flex: 1,
-    paddingVertical: 12,
-    borderRadius: 12,
-    borderWidth: 1.5,
-    borderColor: '#e0e0e0',
-    alignItems: 'center',
+  notesHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginBottom: 6,
   },
-  editPinBtnText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: APP_COLORS.primary,
+  notesLabel: {
+    fontSize: 10,
+    fontWeight: "700",
+    color: "#64748b",
+    letterSpacing: 1,
   },
-  updateStatusBtn: {
-    flex: 1,
-    paddingVertical: 12,
-    borderRadius: 12,
-    backgroundColor: APP_COLORS.secondary,
-    alignItems: 'center',
-  },
-  updateStatusBtnText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#fff',
+  notesText: {
+    fontSize: 13,
+    color: "#475569",
+    lineHeight: 18,
   },
   detailsBtn: {
     backgroundColor: APP_COLORS.primary,
-    paddingVertical: 16,
-    borderRadius: 14,
-    alignItems: 'center',
+    flexDirection: "row",
+    height: 56,
+    borderRadius: 16,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 20,
+    gap: 4,
+    shadowColor: APP_COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
   },
   detailsBtnText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '800',
+    color: "#fff",
+    fontSize: 15,
+    fontWeight: "800",
     letterSpacing: 1,
   },
 });

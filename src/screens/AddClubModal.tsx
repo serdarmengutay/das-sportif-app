@@ -8,6 +8,8 @@ export const AddClubModal: React.FC<AddClubModalProps> = ({ route, navigation })
   const { addClub } = useClubs();
   const [name, setName] = useState('');
   const [notes, setNotes] = useState('');
+  const [coachName, setCoachName] = useState('');
+  const [coachPhone, setCoachPhone] = useState('');
 
   const handleSave = async () => {
     if (!name.trim()) return;
@@ -19,7 +21,8 @@ export const AddClubModal: React.FC<AddClubModalProps> = ({ route, navigation })
       lat,
       lng,
       notes: notes.trim(),
-      coachPhone: '',
+      coachPhone: coachPhone.trim(),
+      coachName: coachName.trim(),
       status: 'visited',
     });
     
@@ -54,6 +57,25 @@ export const AddClubModal: React.FC<AddClubModalProps> = ({ route, navigation })
           <View style={styles.coordBox}>
             <Text style={styles.coordText}>{lat.toFixed(6)}, {lng.toFixed(6)}</Text>
           </View>
+
+          <Text style={styles.label}>Kulüp Sorumlusu</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Sorumlu adını giriniz..."
+            placeholderTextColor="#78909c"
+            value={coachName}
+            onChangeText={setCoachName}
+          />
+
+          <Text style={styles.label}>Telefon</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Telefon numarasını giriniz..."
+            placeholderTextColor="#78909c"
+            value={coachPhone}
+            onChangeText={setCoachPhone}
+            keyboardType="phone-pad"
+          />
 
           <Text style={styles.label}>Notlar (Opsiyonel)</Text>
           <TextInput

@@ -14,11 +14,13 @@ import MapView, {
   PROVIDER_GOOGLE,
 } from "react-native-maps";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { useLocation } from "../hooks/useLocation";
 import { useClubStore } from "../store/useClubStore";
 import { SCREENS } from "../constants/screenConstants";
 import { MapSearchInput } from "../components/MapSearchInput";
 import { ClubBottomSheet } from "../components/ClubBottomSheet";
+import { AddClubBottomSheet } from "../components/AddClubBottomSheet";
 import { APP_COLORS } from "../styles/colors";
 import type { MapScreenProps } from "../types/navigation";
 import type { Club, ClubStatus } from "../types";
@@ -137,6 +139,10 @@ export const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
   const selectedClub = useClubStore((s) => s.selectedClub);
   const setSelectedClub = useClubStore((s) => s.setSelectedClub);
 
+  const addClubSheetRef = useRef<BottomSheetModal>(null);
+  const clubDetailSheetRef = useRef<BottomSheetModal>(null);
+  const [pendingCoords, setPendingCoords] = useState<{ lat: number; lng: number } | null>(null);
+
   const [searchText, setSearchText] = useState("");
 
   // Arama → haritayı animate et
@@ -153,6 +159,7 @@ export const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
   const handleMarkerPress = useCallback(
     (club: Club) => {
       setSelectedClub(club);
+      clubDetailSheetRef.current?.present();
       if (mapRef.current) {
         mapRef.current.animateToRegion(
           { latitude: club.lat, longitude: club.lng, ...CITY_ZOOM },
@@ -163,16 +170,14 @@ export const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
     [setSelectedClub],
   );
 
-  // Long press → AddClubModal
+  // Long press → AddClubModal (Bottom Sheet)
   const handleLongPress = useCallback(
     (e: LongPressEvent) => {
       const { latitude, longitude } = e.nativeEvent.coordinate;
-      navigation.navigate(SCREENS.ADD_CLUB_MODAL, {
-        lat: latitude,
-        lng: longitude,
-      });
+      setPendingCoords({ lat: latitude, lng: longitude });
+      addClubSheetRef.current?.present();
     },
-    [navigation],
+    [],
   );
 
   // Bottom sheet kapatma
@@ -252,8 +257,18 @@ export const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
           )} */}
         </View>
       </SafeView>
-      {/* Bottom Sheet */}
-      <ClubBottomSheet club={selectedClub} onDismiss={handleDismissSheet} />
+      {/* Bottom Sheets */}
+      <ClubBottomSheet 
+        ref={clubDetailSheetRef}
+        club={selectedClub} 
+        onDismiss={handleDismissSheet} 
+      />
+      <AddClubBottomSheet 
+        ref={addClubSheetRef} 
+        lat={pendingCoords?.lat || 0} 
+        lng={pendingCoords?.lng || 0}
+        onDismiss={() => setPendingCoords(null)}
+      />
     </GestureHandlerRootView>
   );
 };

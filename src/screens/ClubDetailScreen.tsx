@@ -25,39 +25,7 @@ import { SCREENS } from "../constants/screenConstants";
 import type { ClubDetailScreenProps } from "../types/navigation";
 import type { ClubStatus, Tournament } from "../types";
 
-const getClubStatusConfig = (status: ClubStatus): StatusBadgeConfig => {
-  switch (status) {
-    case "deal":
-      return {
-        text: "Anlaşıldı",
-        backgroundColor: "#a855f7",
-        color: "#ffffff",
-        icon: "handshake",
-      };
-    case "negotiation":
-      return {
-        text: "Görüşülüyor",
-        backgroundColor: "#3b82f6",
-        color: "#ffffff",
-        icon: "chat-processing-outline",
-      };
-    case "proposal":
-      return {
-        text: "Teklif",
-        backgroundColor: "#f97316",
-        color: "#ffffff",
-        icon: "file-document-edit-outline",
-      };
-    case "visited":
-    default:
-      return {
-        text: "Ziyaret Edildi",
-        backgroundColor: "#22c55e",
-        color: "#ffffff",
-        icon: "map-marker-check-outline",
-      };
-  }
-};
+import { getClubStatusConfig } from "../utils/statusUtils";
 
 export const ClubDetailScreen: React.FC<ClubDetailScreenProps> = () => {
   const navigation = useNavigation<ClubDetailScreenProps["navigation"]>();
@@ -75,6 +43,7 @@ export const ClubDetailScreen: React.FC<ClubDetailScreenProps> = () => {
   const [status, setStatus] = useState<ClubStatus>("proposal");
   const [notes, setNotes] = useState("");
   const [coachPhone, setCoachPhone] = useState("");
+  const [coachName, setCoachName] = useState("");
 
   // Toast
   const [showToast, setShowToast] = useState(false);
@@ -89,6 +58,7 @@ export const ClubDetailScreen: React.FC<ClubDetailScreenProps> = () => {
       setStatus(club.status);
       setNotes(club.notes || "");
       setCoachPhone(club.coachPhone || "");
+      setCoachName(club.coachName || "");
     }
   }, [club]);
 
@@ -102,15 +72,16 @@ export const ClubDetailScreen: React.FC<ClubDetailScreenProps> = () => {
 
   const handleSave = useCallback(async () => {
     if (!club) return;
-    await updateClub(club.id, { status, notes, coachPhone });
+    await updateClub(club.id, { status, notes, coachPhone, coachName });
     setIsEditing(false);
-  }, [club, updateClub, status, notes, coachPhone]);
+  }, [club, updateClub, status, notes, coachPhone, coachName]);
 
   const handleCancel = useCallback(() => {
     if (club) {
       setStatus(club.status);
       setNotes(club.notes || "");
       setCoachPhone(club.coachPhone || "");
+      setCoachName(club.coachName || "");
     }
     setIsEditing(false);
   }, [club]);
@@ -223,6 +194,18 @@ export const ClubDetailScreen: React.FC<ClubDetailScreenProps> = () => {
               placeholder="Örn: 0555 555 5555"
               placeholderTextColor="#94a3b8"
               keyboardType="phone-pad"
+            />
+          </View>
+
+          {/* Coach Name */}
+          <View style={styles.card}>
+            <Text style={styles.cardLabel}>KULÜP SORUMLUSU</Text>
+            <TextInput
+              style={styles.input}
+              value={coachName}
+              onChangeText={setCoachName}
+              placeholder="Ad Soyad"
+              placeholderTextColor="#94a3b8"
             />
           </View>
 
@@ -350,7 +333,7 @@ export const ClubDetailScreen: React.FC<ClubDetailScreenProps> = () => {
               size={18}
               color="#0f172a"
             />
-            <Text style={styles.responsibleText}>-</Text>
+            <Text style={styles.responsibleText}>{club.coachName || "-"}</Text>
           </View>
         </View>
 

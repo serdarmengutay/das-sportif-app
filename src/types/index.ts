@@ -12,6 +12,7 @@ export type Club = {
   status: ClubStatus;
   notes: string;
   coachPhone: string;
+  coachName: string;
   createdAt: number;
 };
 

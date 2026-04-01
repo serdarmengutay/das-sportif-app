@@ -13,6 +13,7 @@ export const CREATE_CLUBS_TABLE = `
     status TEXT NOT NULL DEFAULT 'visited',
     notes TEXT NOT NULL DEFAULT '',
     coachPhone TEXT NOT NULL DEFAULT '',
+    coachName TEXT NOT NULL DEFAULT '',
     createdAt INTEGER NOT NULL
   );
 `;
