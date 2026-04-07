@@ -143,7 +143,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   textArea: {
-    height: 100,
+    minHeight: 100,
     textAlignVertical: 'top',
   },
   coordBox: {

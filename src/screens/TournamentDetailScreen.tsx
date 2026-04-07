@@ -14,58 +14,26 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTournamentStore } from "../store/useTournamentStore";
 import { useClubTournamentStore } from "../store/useClubTournamentStore";
 import { useClubStore } from "../store/useClubStore";
-import { StatusBadge, type StatusBadgeConfig } from "../components/StatusBadge";
+import { StatusBadge } from "../components/StatusBadge";
+import { getTournamentStatusConfig } from "../utils/statusUtils";
 import { TournamentClubCard } from "../components/TournamentClubCard";
 import { LinkClubBottomSheet } from "../components/LinkClubBottomSheet";
+import { TournamentBottomSheet } from "../components/TournamentBottomSheet";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { APP_COLORS } from "../styles/colors";
 import { SCREENS } from "../constants/screenConstants";
+import { formatDate } from "../utils/dateUtils";
 import type { TournamentDetailScreenProps } from "../types/navigation";
 import type { Club, TournamentStatus } from "../types";
 import SafeView from "../components/SafeView";
 
 // ── Status Config ──────────────────────────────────────────
 
-const getTournamentStatusConfig = (
-  status: TournamentStatus,
-): StatusBadgeConfig => {
-  switch (status) {
-    case "active":
-      return {
-        text: "Devam Ediyor",
-        backgroundColor: "#22c55e",
-        color: "#ffffff",
-        icon: "play-circle",
-      };
-    case "completed":
-      return {
-        text: "Tamamlandı",
-        backgroundColor: "#a855f7",
-        color: "#ffffff",
-        icon: "check-circle",
-      };
-    case "planned":
-    default:
-      return {
-        text: "Planlandı",
-        backgroundColor: "#f97316",
-        color: "#ffffff",
-        icon: "clock-outline",
-      };
-  }
-};
+// getTournamentStatusConfig statusUtils'ten alınıyor.
 
 // ── Date Formatter ──────────────────────────────────────────
 
-const formatDate = (ts: number | null): string => {
-  if (!ts) return "Belirtilmedi";
-  const d = new Date(ts);
-  return d.toLocaleDateString("tr-TR", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-  });
-};
+// formatDate utils/dateUtils.ts'den alınıyor.
 
 // ── Screen ──────────────────────────────────────────────────
 
@@ -167,7 +135,7 @@ export const TournamentDetailScreen: React.FC<
             />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Turnuva Detayı</Text>
-          <TouchableOpacity onPress={() => setIsEditing(!isEditing)}>
+          <TouchableOpacity onPress={() => navigation.navigate(SCREENS.TOURNAMENT_EDIT, { tournamentId })}>
             <MaterialCommunityIcons
               name="pencil-outline"
               size={22}

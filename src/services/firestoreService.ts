@@ -1,13 +1,6 @@
-import {
-  collection,
-  doc,
-  setDoc,
-  getDocs,
-  updateDoc,
-  deleteDoc,
-} from "firebase/firestore";
+import { collection, doc, setDoc, getDocs, updateDoc, deleteDoc } from "firebase/firestore";
 import { db } from "./firebase";
-import type { Club, Tournament } from "../types";
+import type { Club, Tournament, ClubTournament } from "../types";
 
 // Helper to remove undefined values before sending to Firestore
 const stripUndefined = (obj: any) => {
@@ -50,5 +43,20 @@ export const updateTournamentRemote = async (id: string, data: Partial<Tournamen
 
 export const deleteTournamentRemote = async (id: string) => {
   await deleteDoc(doc(db, "tournaments", id));
+};
+
+// RELATIONS (CLUB_TOURNAMENT)
+
+export const linkClubTournamentRemote = async (relation: ClubTournament) => {
+  await setDoc(doc(db, "club_tournament", relation.id), relation);
+};
+
+export const unlinkClubTournamentRemote = async (id: string) => {
+  await deleteDoc(doc(db, "club_tournament", id));
+};
+
+export const getClubTournamentsRemote = async (): Promise<ClubTournament[]> => {
+  const snapshot = await getDocs(collection(db, "club_tournament"));
+  return snapshot.docs.map((doc) => doc.data() as ClubTournament);
 };
 

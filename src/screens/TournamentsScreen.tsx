@@ -4,18 +4,19 @@ import { useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { useTournamentStore } from "../store/useTournamentStore";
+import { SCREENS } from "../constants/screenConstants";
 import { TournamentCard } from "../components/TournamentCard";
-import { AddTournamentBottomSheet } from "../components/AddTournamentBottomSheet";
-import { APP_COLORS } from "../styles/colors";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { APP_COLORS } from "../styles/colors";
+import { AddTournamentBottomSheet } from "../components/AddTournamentBottomSheet";
 
 export const TournamentsScreen = () => {
   const navigation = useNavigation<any>();
   const { tournaments, loading, loadTournaments } = useTournamentStore();
-  const bottomSheetRef = useRef<BottomSheetModal>(null);
+  const addSheetRef = useRef<BottomSheetModal>(null);
 
   const handleOpenAddModal = () => {
-    bottomSheetRef.current?.present();
+    addSheetRef.current?.present();
   };
 
   useEffect(() => {
@@ -23,7 +24,7 @@ export const TournamentsScreen = () => {
   }, [loadTournaments]);
 
   const handlePressTournament = (tournamentId: string) => {
-    navigation.navigate("TournamentDetail", { tournamentId });
+    navigation.navigate(SCREENS.TOURNAMENT_DETAIL, { tournamentId });
   };
 
   const renderHeader = () => (
@@ -41,7 +42,7 @@ export const TournamentsScreen = () => {
           renderItem={({ item }) => (
             <TournamentCard
               tournament={item}
-              onPress={handlePressTournament}
+              onPress={() => handlePressTournament(item.id)}
             />
           )}
           ListHeaderComponent={renderHeader}
@@ -67,7 +68,8 @@ export const TournamentsScreen = () => {
         >
           <MaterialCommunityIcons name="plus" size={30} color="#fff" />
         </TouchableOpacity>
-        <AddTournamentBottomSheet ref={bottomSheetRef} />
+        
+        <AddTournamentBottomSheet ref={addSheetRef} />
       </View>
     </SafeAreaView>
   );

@@ -5,6 +5,10 @@ import {
   linkClubTournament,
   unlinkClubTournament,
 } from '../services/database';
+import {
+  linkClubTournamentRemote,
+  unlinkClubTournamentRemote,
+} from '../services/firestoreService';
 
 type ClubTournamentStore = {
   relations: ClubTournament[];
@@ -33,12 +37,22 @@ export const useClubTournamentStore = create<ClubTournamentStore>((set, get) => 
 
   link: async (clubId, tournamentId) => {
     const rel = await linkClubTournament(clubId, tournamentId);
+    try {
+      await linkClubTournamentRemote(rel);
+    } catch (err) {
+      console.warn('Firebase ilişki senkronizasyon hatası:', err);
+    }
     set((s) => ({ relations: [...s.relations, rel] }));
     return rel;
   },
 
   unlink: async (id) => {
     await unlinkClubTournament(id);
+    try {
+      await unlinkClubTournamentRemote(id);
+    } catch (err) {
+      console.warn('Firebase ilişki silme senkronizasyon hatası:', err);
+    }
     set((s) => ({ relations: s.relations.filter((r) => r.id !== id) }));
   },
 

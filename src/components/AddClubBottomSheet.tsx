@@ -161,7 +161,7 @@ export const AddClubBottomSheet = forwardRef<BottomSheetModal, Props>(
             <InputField
               label="Kulüp Adı"
               icon="text-box"
-              placeholder="Örn: Gençlerbirliği SK"
+              placeholder="Kulüp adı giriniz..."
               value={name}
               onChangeText={setName}
             />
@@ -169,7 +169,7 @@ export const AddClubBottomSheet = forwardRef<BottomSheetModal, Props>(
             <InputField
               label="Kulüp Sorumlusu"
               icon="account"
-              placeholder="Örn: Mümtaz Bey"
+              placeholder="Sorumlu adı giriniz..."
               value={coachName}
               onChangeText={setCoachName}
             />
@@ -177,7 +177,7 @@ export const AddClubBottomSheet = forwardRef<BottomSheetModal, Props>(
             <InputField
               label="Telefon Numarası"
               icon="phone"
-              placeholder="Örn: 0532 123 45 67"
+              placeholder="Telefon numarası giriniz..."
               value={coachPhone}
               onChangeText={setCoachPhone}
               keyboardType="phone-pad"
@@ -186,7 +186,7 @@ export const AddClubBottomSheet = forwardRef<BottomSheetModal, Props>(
             <InputField
               label="Notlar"
               icon="note-text"
-              placeholder="Eklemek istediğiniz notlar..."
+              placeholder="Kulüp hakkında not giriniz..."
               value={notes}
               onChangeText={setNotes}
               multiline

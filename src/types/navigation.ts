@@ -9,12 +9,17 @@ export type RootStackParamList = {
   [SCREENS.SPLASH]: undefined;
   [SCREENS.MAIN_TABS]: NavigatorScreenParams<BottomTabParamList>;
   [SCREENS.CLUB_DETAIL]: { clubId: string };
+  [SCREENS.CLUB_EDIT]: { clubId: string; lat?: number; lng?: number };
   [SCREENS.TOURNAMENT_DETAIL]: { tournamentId: string };
+  [SCREENS.TOURNAMENT_EDIT]: { tournamentId: string };
   [SCREENS.ADD_CLUB_MODAL]: { lat: number; lng: number };
 };
 
 export type BottomTabParamList = {
-  [TABS.MAP]: undefined;
+  [TABS.MAP]: {
+    mode?: 'select';
+    returnTo?: keyof RootStackParamList;
+  } | undefined;
   [TABS.CLUBS]: undefined;
   [TABS.TOURNAMENTS]: undefined;
 };
@@ -28,9 +33,19 @@ export type ClubDetailScreenProps = NativeStackScreenProps<
   typeof SCREENS.CLUB_DETAIL
 >;
 
+export type ClubEditScreenProps = NativeStackScreenProps<
+  RootStackParamList,
+  typeof SCREENS.CLUB_EDIT
+>;
+
 export type TournamentDetailScreenProps = NativeStackScreenProps<
   RootStackParamList,
   typeof SCREENS.TOURNAMENT_DETAIL
+>;
+
+export type TournamentEditScreenProps = NativeStackScreenProps<
+  RootStackParamList,
+  typeof SCREENS.TOURNAMENT_EDIT
 >;
 
 export type AddClubModalProps = NativeStackScreenProps<

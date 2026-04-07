@@ -2,7 +2,9 @@ export const SCREENS = {
   SPLASH: "Splash",
   MAIN_TABS: "MainTabs",
   CLUB_DETAIL: "ClubDetail",
+  CLUB_EDIT: "ClubEdit",
   TOURNAMENT_DETAIL: "TournamentDetail",
+  TOURNAMENT_EDIT: "TournamentEdit",
   ADD_CLUB_MODAL: "AddClubModal",
 } as const;
 

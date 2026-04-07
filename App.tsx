@@ -20,17 +20,13 @@ export default function App() {
     const startup = async () => {
       try {
         await initDatabase();
-        
+
         // Load initial data into stores
         const { loadClubs } = useClubStore.getState();
         const { loadTournaments } = useTournamentStore.getState();
         const { loadRelations } = useClubTournamentStore.getState();
-        
-        await Promise.all([
-          loadClubs(),
-          loadTournaments(),
-          loadRelations()
-        ]);
+
+        await Promise.all([loadClubs(), loadTournaments(), loadRelations()]);
 
         setDbReady(true);
         // Start background sync

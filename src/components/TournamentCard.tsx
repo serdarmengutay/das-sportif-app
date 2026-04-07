@@ -1,63 +1,30 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { StatusBadge, type StatusBadgeConfig } from "./StatusBadge";
-import type { Tournament, TournamentStatus } from "../types";
+import { StatusBadge } from "./StatusBadge";
+import { getTournamentStatusConfig } from "../utils/statusUtils";
+import { formatDate } from "../utils/dateUtils";
+import type { Tournament } from "../types";
 
 interface TournamentCardProps {
   tournament: Tournament;
   onPress: (id: string) => void;
 }
 
-const getStatusConfig = (status: TournamentStatus): StatusBadgeConfig => {
-  switch (status) {
-    case "active":
-      return {
-        text: "Devam Ediyor",
-        backgroundColor: "#22c55e",
-        color: "#ffffff",
-        icon: "play-circle",
-      };
-    case "completed":
-      return {
-        text: "Tamamlandı",
-        backgroundColor: "#a855f7",
-        color: "#ffffff",
-        icon: "check-circle",
-      };
-    case "planned":
-    default:
-      return {
-        text: "Planlandı",
-        backgroundColor: "#f97316",
-        color: "#ffffff",
-        icon: "clock-outline",
-      };
-  }
-};
-
-const formatDate = (timestamp: number | null) => {
-  if (!timestamp) return "";
-  const date = new Date(timestamp);
-  return date.toLocaleDateString("tr-TR", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-  });
-};
+// dateUtils kullanılıyor.
 
 export const TournamentCard: React.FC<TournamentCardProps> = ({
   tournament,
   onPress,
 }) => {
-  const statusConfig = getStatusConfig(tournament.status);
+  const statusConfig = getTournamentStatusConfig(tournament.status);
 
-  const startStr = formatDate(tournament.startDate);
-  const endStr = formatDate(tournament.endDate);
+  const startStr = tournament.startDate ? formatDate(tournament.startDate) : "";
+  const endStr = tournament.endDate ? formatDate(tournament.endDate) : "";
   const dateText =
-    startStr && endStr
+    startStr && endStr && startStr !== "Belirtilmedi"
       ? `${startStr} - ${endStr}`
-      : startStr || endStr || "Tarih Belirlenmedi";
+      : startStr !== "Belirtilmedi" ? startStr : "Tarih Belirlenmedi";
 
   return (
     <TouchableOpacity

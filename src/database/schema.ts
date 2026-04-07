@@ -28,6 +28,7 @@ export const CREATE_TOURNAMENTS_TABLE = `
     status TEXT NOT NULL DEFAULT 'planned',
     participantCount INTEGER NOT NULL DEFAULT 0,
     locationName TEXT NOT NULL DEFAULT '',
+    notes TEXT NOT NULL DEFAULT '',
     createdAt INTEGER NOT NULL
   );
 `;

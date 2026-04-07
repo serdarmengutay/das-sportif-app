@@ -30,23 +30,29 @@ export const InputField: React.FC<Props> = ({ label, icon, style, ...rest }) => 
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 12,
+    marginBottom: 16,
   },
   label: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#64748B',
-    marginBottom: 6,
-    letterSpacing: 0.5,
-    textTransform: 'uppercase',
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#334155',
+    marginBottom: 8,
+    letterSpacing: 0.3,
   },
   inputRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F1F5F9',
+    backgroundColor: '#FFFFFF',
     borderRadius: 12,
     borderWidth: 1,
     borderColor: '#E2E8F0',
+    // Shadow for iOS
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    // Elevation for Android
+    elevation: 2,
   },
   inputRowMultiline: {
     alignItems: 'flex-start',
@@ -56,12 +62,12 @@ const styles = StyleSheet.create({
     marginLeft: 14,
   },
   iconMultiline: {
-    marginTop: 12,
+    marginTop: 14,
   },
   input: {
     flex: 1,
     paddingHorizontal: 14,
-    paddingVertical: 13,
+    paddingVertical: 14,
     fontSize: 15,
     color: '#0F172A',
   },

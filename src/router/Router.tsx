@@ -21,7 +21,9 @@ import { ClubsScreen } from "../screens/ClubsScreen";
 import { MapScreen } from "../screens/MapScreen";
 import { TournamentsScreen } from "../screens/TournamentsScreen";
 import { ClubDetailScreen } from "../screens/ClubDetailScreen";
+import { ClubEditScreen } from "../screens/ClubEditScreen";
 import { TournamentDetailScreen } from "../screens/TournamentDetailScreen";
+import { TournamentEditScreen } from "../screens/TournamentEditScreen";
 import { AddClubModal } from "../screens/AddClubModal";
 import { APP_COLORS } from "../styles/colors";
 import {
@@ -68,7 +70,7 @@ const MainTabs = () => {
           alignItems: "center",
           justifyContent: "space-evenly",
           height: 95,
-          backgroundColor: APP_COLORS.tertiary,
+          backgroundColor: APP_COLORS.light_bg,
           width: screenWidth,
           shadowColor: "#000",
           shadowOffset: {
@@ -181,9 +183,19 @@ export const Router = () => {
             options={{ title: "Kulüp Detay" }}
           />
           <Stack.Screen
+            name={SCREENS.CLUB_EDIT}
+            component={ClubEditScreen}
+            options={{ title: "Kulüp Düzenle" }}
+          />
+          <Stack.Screen
             name={SCREENS.TOURNAMENT_DETAIL}
             component={TournamentDetailScreen}
             options={{ title: "Turnuva Detay" }}
+          />
+          <Stack.Screen
+            name={SCREENS.TOURNAMENT_EDIT}
+            component={TournamentEditScreen}
+            options={{ title: "Turnuva Düzenle" }}
           />
 
           {/* Modals */}

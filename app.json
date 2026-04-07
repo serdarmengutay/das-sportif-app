@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "das-sportif-app",
-    "slug": "das-sportif-app",
+    "name": "Das Sportif",
+    "slug": "Das Sportif",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -25,10 +25,8 @@
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/android-icon-foreground.png",
-        "backgroundImage": "./assets/android-icon-background.png",
-        "monochromeImage": "./assets/android-icon-monochrome.png"
+        "foregroundImage": "./assets/icon.png",
+        "backgroundColor": "#ffffff"
       },
       "permissions": [
         "ACCESS_FINE_LOCATION",
@@ -57,7 +55,13 @@
           "locationAlwaysPermission": "Arka planda konum takibi için erişime ihtiyacımız var.",
           "locationWhenInUsePermission": "Haritada konumunuzu göstermek için konum erişimine ihtiyacımız var."
         }
-      ]
-    ]
+      ],
+      "@react-native-community/datetimepicker"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "1daa0863-3b0c-43f3-ac19-9bf11a3b5e36"
+      }
+    }
   }
 }

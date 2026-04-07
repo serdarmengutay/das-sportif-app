@@ -13,37 +13,37 @@ import {
   BottomSheetBackdrop,
 } from "@gorhom/bottom-sheet";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { useClubStore } from "../store/useClubStore";
+import { useTournamentStore } from "../store/useTournamentStore";
 import { useClubTournamentStore } from "../store/useClubTournamentStore";
 import { APP_COLORS } from "../styles/colors";
-import type { Club } from "../types";
+import type { Tournament } from "../types";
 import { screenHeight } from "../constants/appConstants";
 
 type Props = {
-  tournamentId: string;
-  onLink: (clubId: string) => Promise<void>;
+  clubId: string;
+  onLink: (tournamentId: string) => Promise<void>;
 };
 
-export const LinkClubBottomSheet = forwardRef<BottomSheetModal, Props>(
-  ({ tournamentId, onLink }, ref) => {
+export const LinkTournamentBottomSheet = forwardRef<BottomSheetModal, Props>(
+  ({ clubId, onLink }, ref) => {
     const [search, setSearch] = useState("");
-    const clubs = useClubStore((s) => s.clubs);
+    const tournaments = useTournamentStore((s) => s.tournaments);
     const relations = useClubTournamentStore((s) => s.relations);
 
-    // ── Filtreleme: Zaten ekli olmayanları ve aramaya uyanları getir ──
-    const filterableClubs = useMemo(() => {
-      const linkedIds = relations
-        .filter((r) => r.tournamentId === tournamentId)
-        .map((r) => r.clubId);
+    // Filter: Show only tournaments that this club is NOT yet linked to
+    const filterableTournaments = useMemo(() => {
+      const linkedTournamentIds = relations
+        .filter((r) => r.clubId === clubId)
+        .map((r) => r.tournamentId);
 
-      return clubs.filter((c) => {
-        const isNotLinked = !linkedIds.includes(c.id);
-        const matchesSearch = c.name
+      return tournaments.filter((t) => {
+        const isNotLinked = !linkedTournamentIds.includes(t.id);
+        const matchesSearch = t.name
           .toLowerCase()
           .includes(search.toLowerCase());
         return isNotLinked && matchesSearch;
       });
-    }, [clubs, relations, tournamentId, search]);
+    }, [tournaments, relations, clubId, search]);
 
     const renderBackdrop = useCallback(
       (props: any) => (
@@ -58,35 +58,31 @@ export const LinkClubBottomSheet = forwardRef<BottomSheetModal, Props>(
       [],
     );
 
-    const handleSelect = async (clubId: string) => {
+    const handleSelect = async (tournamentId: string) => {
       Keyboard.dismiss();
-      await onLink(clubId);
-      // Not closing automatically to allow multiple links if desired,
-      // but usually users want it closed after selection.
-      // The user said "liste aç içinden seçtir", so we'll close it.
+      await onLink(tournamentId);
       if (typeof ref !== "function" && ref?.current) {
         ref.current.dismiss();
       }
     };
 
-    const renderItem = ({ item }: { item: Club }) => (
+    const renderItem = ({ item }: { item: Tournament }) => (
       <TouchableOpacity
-        style={styles.clubItem}
+        style={styles.tournamentItem}
         onPress={() => handleSelect(item.id)}
       >
-        <View style={styles.clubInfo}>
+        <View style={styles.tournamentInfo}>
           <View style={styles.iconContainer}>
             <MaterialCommunityIcons
-              name="soccer"
+              name="trophy-outline"
               size={20}
               color={APP_COLORS.primary}
             />
           </View>
           <View>
-            <Text style={styles.clubName}>{item.name}</Text>
-            <Text style={styles.clubLocation}>
-              {item.district ? `${item.district}, ` : ""}
-              {item.city}
+            <Text style={styles.tournamentName}>{item.name}</Text>
+            <Text style={styles.tournamentLocation}>
+              {item.city} - {item.locationName}
             </Text>
           </View>
         </View>
@@ -111,18 +107,18 @@ export const LinkClubBottomSheet = forwardRef<BottomSheetModal, Props>(
       >
         <View style={styles.content}>
           <View style={styles.header}>
-            <Text style={styles.title}>Kulüp Bağla</Text>
+            <Text style={styles.title}>Turnuva Bağla</Text>
             <Text style={styles.subtitle}>
-              Turnuvaya eklenecek kulübü seçin
+              Kulübü atamak istediğiniz turnuvayı seçin
             </Text>
           </View>
 
-          {/* Arama Çubuğu */}
+          {/* Search Bar */}
           <View style={styles.searchContainer}>
             <MaterialCommunityIcons name="magnify" size={20} color="#94a3b8" />
             <TextInput
               style={styles.searchInput}
-              placeholder="Kulüp adı ile ara..."
+              placeholder="Turnuva adı ile ara..."
               value={search}
               onChangeText={setSearch}
               placeholderTextColor="#94a3b8"
@@ -139,8 +135,8 @@ export const LinkClubBottomSheet = forwardRef<BottomSheetModal, Props>(
           </View>
 
           <BottomSheetFlatList
-            data={filterableClubs}
-            keyExtractor={(item: Club) => item.id}
+            data={filterableTournaments}
+            keyExtractor={(item: Tournament) => item.id}
             renderItem={renderItem}
             contentContainerStyle={styles.listPadding}
             ListEmptyComponent={
@@ -148,7 +144,7 @@ export const LinkClubBottomSheet = forwardRef<BottomSheetModal, Props>(
                 <Text style={styles.emptyText}>
                   {search
                     ? "Arama sonucu bulunamadı."
-                    : "Bağlanabilecek kulüp kalmadı."}
+                    : "Bağlanabilecek turnuva kalmadı."}
                 </Text>
               </View>
             }
@@ -204,7 +200,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: "#0f172a",
   },
-  clubItem: {
+  tournamentItem: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -213,7 +209,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "#f1f5f9",
   },
-  clubInfo: {
+  tournamentInfo: {
     flexDirection: "row",
     alignItems: "center",
     flex: 1,
@@ -227,12 +223,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginRight: 12,
   },
-  clubName: {
+  tournamentName: {
     fontSize: 15,
     fontWeight: "700",
     color: "#1e293b",
   },
-  clubLocation: {
+  tournamentLocation: {
     fontSize: 12,
     color: "#64748b",
     marginTop: 1,

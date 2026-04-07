@@ -1,16 +1,15 @@
 import { StatusBadgeConfig } from "../components/StatusBadge";
-import { ClubStatus } from "../types";
+import { ClubStatus, TournamentStatus } from "../types";
 
 /**
- * Kulüp durumlarına (status) göre badge (rozet) yapılandırmasını döndürür.
- * Tüm uygulama genelinde renk ve ikon uyumunu sağlar.
+ * Kulüp durumlarına (status) göre badge (rozet) yapılandırması.
  */
 export const getClubStatusConfig = (status: ClubStatus): StatusBadgeConfig => {
   switch (status) {
     case "deal":
       return {
         text: "Anlaşıldı",
-        backgroundColor: "#a855f7", // Violet/Purple
+        backgroundColor: "#22c55e", // Green
         color: "#ffffff",
         icon: "handshake",
       };
@@ -32,7 +31,7 @@ export const getClubStatusConfig = (status: ClubStatus): StatusBadgeConfig => {
     default:
       return {
         text: "Ziyaret Edildi",
-        backgroundColor: "#22c55e", // Green
+        backgroundColor: "#64748b", // Slate
         color: "#ffffff",
         icon: "map-marker-check-outline",
       };
@@ -40,11 +39,47 @@ export const getClubStatusConfig = (status: ClubStatus): StatusBadgeConfig => {
 };
 
 /**
- * Dropdown ve seçim alanları için durum seçenekleri
+ * Turnuva durumlarına (status) göre badge (rozet) yapılandırması.
+ */
+export const getTournamentStatusConfig = (status: TournamentStatus): StatusBadgeConfig => {
+  switch (status) {
+    case "active":
+      return {
+        text: "Aktif",
+        backgroundColor: "#3b82f6", // Blue
+        color: "#ffffff",
+        icon: "play-circle-outline",
+      };
+    case "completed":
+      return {
+        text: "Tamamlandı",
+        backgroundColor: "#10b981", // Emerald
+        color: "#ffffff",
+        icon: "check-circle-outline",
+      };
+    case "planned":
+    default:
+      return {
+        text: "Planlandı",
+        backgroundColor: "#64748b", // Slate
+        color: "#ffffff",
+        icon: "calendar-clock",
+      };
+  }
+};
+
+/**
+ * Seçim alanları için durum seçenekleri
  */
 export const CLUB_STATUS_OPTIONS: { value: ClubStatus; label: string }[] = [
-  { value: "visited", label: "Ziyaret" },
+  { value: "visited", label: "Ziyaret Edildi" },
+  { value: "negotiation", label: "Görüşülüyor" },
   { value: "proposal", label: "Teklif" },
-  { value: "negotiation", label: "Görüşme" },
-  { value: "deal", label: "Anlaşma" },
+  { value: "deal", label: "Anlaşıldı" },
+];
+
+export const TOURNAMENT_STATUS_OPTIONS: { value: TournamentStatus; label: string }[] = [
+  { value: "planned", label: "Planlandı" },
+  { value: "active", label: "Aktif" },
+  { value: "completed", label: "Tamamlandı" },
 ];

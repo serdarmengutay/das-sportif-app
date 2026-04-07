@@ -1,40 +1,16 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { StatusBadge, type StatusBadgeConfig } from "./StatusBadge";
-import type { Tournament, TournamentStatus } from "../types";
+import { StatusBadge } from "./StatusBadge";
+import { getTournamentStatusConfig } from "../utils/statusUtils";
+import type { Tournament } from "../types";
 
 interface TournamentMiniCardProps {
   tournament: Tournament;
   onPress: (id: string) => void;
 }
 
-const getStatusConfig = (status: TournamentStatus): StatusBadgeConfig => {
-  switch (status) {
-    case "active":
-      return {
-        text: "Devam Ediyor",
-        backgroundColor: "#22c55e",
-        color: "#ffffff",
-        icon: "play-circle",
-      };
-    case "completed":
-      return {
-        text: "Tamamlandı",
-        backgroundColor: "#a855f7",
-        color: "#ffffff",
-        icon: "check-circle",
-      };
-    case "planned":
-    default:
-      return {
-        text: "Planlandı",
-        backgroundColor: "#f97316",
-        color: "#ffffff",
-        icon: "clock-outline",
-      };
-  }
-};
+// getTournamentStatusConfig statusUtils'ten alınıyor.
 
 const formatDate = (timestamp: number | null) => {
   if (!timestamp) return "";
@@ -49,7 +25,7 @@ export const TournamentMiniCard: React.FC<TournamentMiniCardProps> = ({
   tournament,
   onPress,
 }) => {
-  const statusConfig = getStatusConfig(tournament.status);
+  const statusConfig = getTournamentStatusConfig(tournament.status);
   const startStr = formatDate(tournament.startDate);
   const endStr = formatDate(tournament.endDate);
   const dateText =
@@ -93,12 +69,19 @@ export const TournamentMiniCard: React.FC<TournamentMiniCardProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#f8fafc",
+    backgroundColor: "#ffffff",
     borderRadius: 14,
     padding: 14,
     marginBottom: 10,
     borderWidth: 1,
-    borderColor: "#e2e8f0",
+    borderColor: "#f1f5f9",
+    // Shadow for iOS
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    // Elevation for Android
+    elevation: 2,
   },
   topRow: {
     flexDirection: "row",

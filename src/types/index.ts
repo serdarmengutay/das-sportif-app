@@ -31,6 +31,7 @@ export type Tournament = {
   status: TournamentStatus;
   participantCount: number;
   locationName: string;
+  notes: string;
   createdAt: number;
 };
 

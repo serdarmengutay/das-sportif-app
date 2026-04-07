@@ -172,8 +172,8 @@ export const insertTournament = async (data: TournamentInsert): Promise<Tourname
   const database = await getDatabase();
   const id = uid('trn');
   const createdAt = Date.now();
-  const sql = `INSERT INTO tournaments (id,name,city,startDate,endDate,status,participantCount,locationName,createdAt)
-     VALUES (?,?,?,?,?,?,?,?,?)`;
+  const sql = `INSERT INTO tournaments (id,name,city,startDate,endDate,status,participantCount,locationName,notes,createdAt)
+     VALUES (?,?,?,?,?,?,?,?,?,?)`;
   const params = [
     id,
     data.name || '',
@@ -183,6 +183,7 @@ export const insertTournament = async (data: TournamentInsert): Promise<Tourname
     data.status || 'planned',
     data.participantCount || 0,
     data.locationName || '',
+    data.notes ? data.notes.trim() : '',
     createdAt,
   ];
 
@@ -229,8 +230,8 @@ export const deleteTournament = async (id: string): Promise<void> => {
 
 export const upsertTournament = async (t: Tournament): Promise<void> => {
   const database = await getDatabase();
-  const sql = `INSERT INTO tournaments (id, name, city, startDate, endDate, status, participantCount, locationName, createdAt)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+  const sql = `INSERT INTO tournaments (id, name, city, startDate, endDate, status, participantCount, locationName, notes, createdAt)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                ON CONFLICT(id) DO UPDATE SET
                name=excluded.name,
                city=excluded.city,
@@ -238,7 +239,8 @@ export const upsertTournament = async (t: Tournament): Promise<void> => {
                endDate=excluded.endDate,
                status=excluded.status,
                participantCount=excluded.participantCount,
-               locationName=excluded.locationName;`;
+               locationName=excluded.locationName,
+               notes=excluded.notes;`;
   const params = [
     t.id,
     t.name || '',
@@ -248,6 +250,7 @@ export const upsertTournament = async (t: Tournament): Promise<void> => {
     t.status || 'planned',
     t.participantCount || 0,
     t.locationName || '',
+    t.notes || '',
     t.createdAt || Date.now()
   ];
   await database.runAsync(sql, params);

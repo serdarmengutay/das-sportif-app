@@ -7,7 +7,9 @@ import {
   Platform,
   TouchableOpacity,
   Image,
+  StatusBar,
 } from "react-native";
+import { useNavigation, useRoute, useIsFocused } from "@react-navigation/native";
 import MapView, {
   Marker,
   LongPressEvent,
@@ -17,7 +19,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { useLocation } from "../hooks/useLocation";
 import { useClubStore } from "../store/useClubStore";
-import { SCREENS } from "../constants/screenConstants";
+import { SCREENS, TABS } from "../constants/screenConstants";
 import { MapSearchInput } from "../components/MapSearchInput";
 import { ClubBottomSheet } from "../components/ClubBottomSheet";
 import { AddClubBottomSheet } from "../components/AddClubBottomSheet";
@@ -118,40 +120,28 @@ const STATUS_COLORS: Record<ClubStatus, string> = {
   deal: "#ab47bc",
 };
 
-// Basit şehir geocoding (mock)
-const CITY_COORDS: Record<string, { latitude: number; longitude: number }> = {
-  istanbul: { latitude: 41.0082, longitude: 28.9784 },
-  ankara: { latitude: 39.9334, longitude: 32.8597 },
-  izmir: { latitude: 38.4189, longitude: 27.1287 },
-  antalya: { latitude: 36.8969, longitude: 30.7133 },
-  bursa: { latitude: 40.1826, longitude: 29.0665 },
-  adana: { latitude: 37.0, longitude: 35.3213 },
-  konya: { latitude: 37.8746, longitude: 32.4932 },
-  beşiktaş: { latitude: 41.0422, longitude: 29.0069 },
-  kadıköy: { latitude: 40.9927, longitude: 29.0245 },
-  trabzon: { latitude: 41.0027, longitude: 39.7168 },
-};
-
 export const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
   const mapRef = useRef<MapView>(null);
   const { coords, loading, error, refetch } = useLocation();
   const clubs = useClubStore((s) => s.clubs);
   const selectedClub = useClubStore((s) => s.selectedClub);
   const setSelectedClub = useClubStore((s) => s.setSelectedClub);
+  
+  const isFocused = useIsFocused();
 
   const addClubSheetRef = useRef<BottomSheetModal>(null);
   const clubDetailSheetRef = useRef<BottomSheetModal>(null);
   const [pendingCoords, setPendingCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lng: number } | null>(null);
 
-  const [searchText, setSearchText] = useState("");
+  const route = useRoute<MapScreenProps["route"]>();
+  const isSelectMode = route.params?.mode === 'select';
+  const returnTo = route.params?.returnTo;
 
   // Arama → haritayı animate et
-  const handleSearch = useCallback((text: string) => {
-    setSearchText(text);
-    const key = text.toLowerCase().trim();
-    const match = CITY_COORDS[key];
-    if (match && mapRef.current) {
-      mapRef.current.animateToRegion({ ...match, ...CITY_ZOOM }, 800);
+  const handleCitySelect = useCallback((city: { lat: number; lng: number }) => {
+    if (mapRef.current) {
+      mapRef.current.animateToRegion({ latitude: city.lat, longitude: city.lng, ...CITY_ZOOM }, 800);
     }
   }, []);
 
@@ -170,15 +160,29 @@ export const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
     [setSelectedClub],
   );
 
-  // Long press → AddClubModal (Bottom Sheet)
+  // Long press → AddClubModal veya Konum Seçimi
   const handleLongPress = useCallback(
     (e: LongPressEvent) => {
       const { latitude, longitude } = e.nativeEvent.coordinate;
-      setPendingCoords({ lat: latitude, lng: longitude });
-      addClubSheetRef.current?.present();
+      if (isSelectMode) {
+        setSelectedLocation({ lat: latitude, lng: longitude });
+      } else {
+        setPendingCoords({ lat: latitude, lng: longitude });
+        addClubSheetRef.current?.present();
+      }
     },
-    [],
+    [isSelectMode],
   );
+
+  const handleConfirmLocation = useCallback(() => {
+    if (selectedLocation && returnTo) {
+      navigation.navigate(returnTo as any, {
+        lat: selectedLocation.lat,
+        lng: selectedLocation.lng,
+      });
+      setSelectedLocation(null);
+    }
+  }, [selectedLocation, returnTo, navigation]);
 
   // Bottom sheet kapatma
   const handleDismissSheet = useCallback(() => {
@@ -213,6 +217,7 @@ export const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
 
   return (
     <GestureHandlerRootView style={styles.container}>
+      {isFocused && <StatusBar barStyle="light-content" backgroundColor="#1a1a2e" />}
       <SafeView>
         {/* Map */}
         <View style={styles.mapContainer}>
@@ -232,22 +237,58 @@ export const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
                 key={c.id}
                 coordinate={{ latitude: c.lat, longitude: c.lng }}
                 pinColor={STATUS_COLORS[c.status]}
-                onPress={() => handleMarkerPress(c)}
+                onPress={() => !isSelectMode && handleMarkerPress(c)}
               />
             ))}
+
+            {isSelectMode && selectedLocation && (
+              <Marker
+                coordinate={{
+                  latitude: selectedLocation.lat,
+                  longitude: selectedLocation.lng,
+                }}
+                pinColor={APP_COLORS.primary}
+                title="Yeni Konum"
+              />
+            )}
           </MapView>
 
           {/* Search Overlay */}
-          <MapSearchInput value={searchText} onChangeText={handleSearch} />
+          <MapSearchInput onCitySelect={handleCitySelect} />
 
           {/* FAB - Center to user */}
           <TouchableOpacity
-            style={styles.fab}
+            style={[styles.fab, isSelectMode && selectedLocation && { bottom: 100 }]}
             onPress={centerToUser}
             activeOpacity={0.8}
           >
             <Text style={{ fontSize: 22 }}>📍</Text>
           </TouchableOpacity>
+
+          {/* Confirm Button for Select Mode */}
+          {isSelectMode && (
+            <View style={styles.selectionOverlay}>
+              <View style={styles.selectionCard}>
+                <Text style={styles.selectionTitle}>
+                  {selectedLocation ? "Konum Seçildi" : "Haritaya Uzun Basarak Konum Seçin"}
+                </Text>
+                {selectedLocation && (
+                  <TouchableOpacity
+                    style={styles.confirmBtn}
+                    onPress={handleConfirmLocation}
+                  >
+                    <Text style={styles.confirmBtnText}>Konumu Onayla</Text>
+                  </TouchableOpacity>
+                )}
+                <TouchableOpacity
+                  style={styles.cancelSelectionBtn}
+                  onPress={() => navigation.goBack()}
+                >
+                  <Text style={styles.cancelSelectionBtnText}>Vazgeç</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
 
           {/* Club Count Badge */}
           {/* {clubs.length > 0 && (
@@ -347,4 +388,47 @@ const styles = StyleSheet.create({
     borderRadius: 16,
   },
   badgeText: { color: "#e0e0e0", fontSize: 13, fontWeight: "600" },
+  selectionOverlay: {
+    position: "absolute",
+    bottom: 24,
+    left: 16,
+    right: 16,
+  },
+  selectionCard: {
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    padding: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
+    gap: 12,
+  },
+  selectionTitle: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#475569",
+    textAlign: "center",
+  },
+  confirmBtn: {
+    backgroundColor: APP_COLORS.primary,
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: "center",
+  },
+  confirmBtnText: {
+    color: "#fff",
+    fontSize: 15,
+    fontWeight: "700",
+  },
+  cancelSelectionBtn: {
+    paddingVertical: 10,
+    alignItems: "center",
+  },
+  cancelSelectionBtnText: {
+    color: "#64748b",
+    fontSize: 14,
+    fontWeight: "600",
+  },
 });
